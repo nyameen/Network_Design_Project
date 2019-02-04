@@ -1,6 +1,8 @@
 import socket
 import time
 import select
+import os
+import sys
 
 UDP_IP = "127.0.0.1"    # server IP
 UDP_PORT = 12001    # server Port
@@ -9,23 +11,34 @@ UDP_PORT = 12001    # server Port
 sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)	# open a UDP socket
 sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)  # set options for resuse addr and port
 
-# change file name in file.jpg
-sock.sendto('file.jpg'.encode('utf-8'), (UDP_IP, UDP_PORT)) # send file name to server
-print ("Sending ")
+def send_img(filepath):
+    try:
+        f = open(filepath, "rb")  # open that file for reading binary
+    except FileNotFoundError:
+        print(f'{filename} does not exist')
+        return
 
-# change file name in file.jpg
-f = open("file.jpg", "rb")  # open that file for reading binary
-data = f.read(1024) # read 1024 bytes
+    filename = os.path.basename(filepath)
+    print("Sending filename to server")
+    sock.sendto(filename.encode('utf-8'), (UDP_IP, UDP_PORT)) # send file name to server
 
-# while there is still data to send
-while(data):
-    if(sock.sendto(data, (UDP_IP, UDP_PORT))):	# send data to server
-        data = f.read(1024) # read another 1024
-        time.sleep(0.02)    # small wait
+    data = f.read(1024) # read 1024 bytes
+
+    # while there is still data to send
+    print('Sending file contents to server')
+    while(data):
+        if(sock.sendto(data, (UDP_IP, UDP_PORT))):	# send data to server
+            data = f.read(1024) # read another 1024
+            time.sleep(0.02)    # small wait
+
+    f.close()
 
 
-f.close()
+if len(sys.argv) < 2:
+    print('Please provide filepath to send')
+    sys.exit(1)
 
+send_img(sys.argv[1])
 
 data, addr = sock.recvfrom(1024)    # receive file name from server
 if(data):
