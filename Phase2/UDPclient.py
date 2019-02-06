@@ -34,27 +34,36 @@ def send_img(filepath):
     f.close()
 
 
+def wait_and_receive():
+    data, addr = sock.recvfrom(1024)    # receive file name from server
+    if not data:
+        print('No response received')
+        return
+
+    resfile = data.strip().decode('utf-8')
+    filename = f'reponse_{resfile}'
+    print("Response file Name:", filename)   # print it
+
+    f = open(filename, "wb") # open that file for writing binary
+
+    while(True):
+        ready = select.select([sock], [], [], 3)    # wait until sock is ready for I/O
+        if(ready[0]):
+            data, addr = sock.recvfrom(1024)    # read 1024 from server
+            f.write(data)	# write it to a file
+        else:
+            print(f'{filename} finished')  # finished reading file
+            break
+
+    f.close()
+
+
+
 if len(sys.argv) < 2:
     print('Please provide filepath to send')
     sys.exit(1)
 
 send_img(sys.argv[1])
-
-data, addr = sock.recvfrom(1024)    # receive file name from server
-if(data):
-    print("File Name:", data)   # print it
-    file = data.strip() # strip the name
-
-f = open(file, "wb") # open that file for writing binary
-
-while(1):
-    ready = select.select([sock], [], [], 3)	# wait until sock is ready for I/O
-    if(ready[0]):
-        data, addr = sock.recvfrom(1024)    # read 1024 from server
-        f.write(data)	# write it to a file
-    else:
-        print("%s Finsih!" % file)  # finished reading file
-        break
+wait_and_receive()
 
 sock.close()    # close socket
-f.close()   # close port

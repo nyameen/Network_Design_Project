@@ -1,21 +1,35 @@
 import socket
 import select
 import time
+import sys
+import os
+
+UDP_IP = "127.0.0.1"	# Server IP
+IN_PORT = 12001	    # port
+timeout = 3	# timeout
+
+if len(sys.argv) < 2:
+    print('Please provide path to response file')
+    sys.exit(1)
+
+response_filename = sys.argv[1]
 
 # function to send an image
-# insert file name in sendto and open functions
-def sendImg(socket, client):
-	# send name of file
-    socket.sendto('file.png'.encode('utf-8'), client)
-    print ("Sending...")
+def send_img(socket, client, filepath):
+    try:
+        f = open(filepath, 'rb')
+    except FileNotFoundError:
+        print(f'Response file {filepath} does not exist')
+        return
+    filename = os.path.basename(filepath)
+    print ("Sending filename of response")
+    socket.sendto(filename.encode('utf-8'), client)
 
-    # open that image for reading binary
-    f = open("file.png", "rb")
-	
     # read 1024 bytes
     data = f.read(1024)
 
     # while theres data keep sending
+    print("Sending response file")
     while(data):
         # send 1024 bytes to client
         if(socket.sendto(data, client)):
@@ -24,23 +38,15 @@ def sendImg(socket, client):
             # slight delay
             time.sleep(0.02)
 
-
-
-UDP_IP = "127.0.0.1"	# Server IP
-IN_PORT = 12001	    # port
-timeout = 3	# timeout
-
-
 sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)		# open a UDP socket
 sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)	# set the socket options to reuse address and port
 sock.bind((UDP_IP, IN_PORT))    # bind to address and port
 
-# forever
 while True:
     data, addr = sock.recvfrom(1024)    # receive from client
     if data:
-        print ("File name:", data)  # print file received
-        file_name = data.strip()    # strip the header
+        file_name = data.strip().decode('utf-8')    # strip the header
+        print ("Recieved file name:", file_name)  # print file received
 
     f = open(file_name, 'wb')   # open that file for writing binary
 
@@ -54,4 +60,4 @@ while True:
             f.close()	# close file
             break
 
-    sendImg(sock, addr)
+    send_img(sock, addr, response_filename)
