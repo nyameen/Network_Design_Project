@@ -3,7 +3,7 @@ import time
 import select
 import os
 import sys
-from collections import deque
+import utils
 
 UDP_IP = "127.0.0.1"    # server IP
 UDP_PORT = 12001    # server Port
@@ -11,14 +11,6 @@ UDP_PORT = 12001    # server Port
 
 sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)	# open a UDP socket
 sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)  # set options for resuse addr and port
-
-def make_packets(fileobj, byte_per_pack):
-    data = fileobj.read(byte_per_pack)
-    packets = deque()
-    while data:
-        packets.append(data)
-        data = fileobj.read(byte_per_pack)
-    return packets
 
 def send_img(filepath):
     try:
@@ -31,7 +23,7 @@ def send_img(filepath):
     print("Sending filename to server")
     sock.sendto(filename.encode('utf-8'), (UDP_IP, UDP_PORT)) # send file name to server
 
-    packets = make_packets(f, 1024)
+    packets = utils.make_packets(f, 1024)
 
     # while there is still data to send
     print('Sending file contents to server')
