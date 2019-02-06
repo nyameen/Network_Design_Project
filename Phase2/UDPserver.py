@@ -3,6 +3,7 @@ import select
 import time
 import sys
 import os
+from collections import deque
 
 UDP_IP = "127.0.0.1"	# Server IP
 IN_PORT = 12001	    # port
@@ -13,6 +14,14 @@ if len(sys.argv) < 2:
     sys.exit(1)
 
 response_filename = sys.argv[1]
+
+def make_packets(fileobj, byte_per_pack):
+    data = fileobj.read(byte_per_pack)
+    packets = deque()
+    while data:
+        packets.append(data)
+        data = fileobj.read(byte_per_pack)
+    return packets
 
 # function to send an image
 def send_img(socket, client, filepath):
@@ -26,18 +35,14 @@ def send_img(socket, client, filepath):
     socket.sendto(filename.encode('utf-8'), client)
 
     # read 1024 bytes
-    data = f.read(1024)
+    packets = make_packets(f, 1024)
 
     # while theres data keep sending
     print("Sending response file")
-    while(data):
-        # send 1024 bytes to client
-        if(socket.sendto(data, client)):
-            # read another 1024
-            data = f.read(1024)
-            # slight delay
-            time.sleep(0.02)
-
+    while packets:
+        if not socket.sendto(packets.popleft(), client):
+            print('Error sending packet')
+            
 sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)		# open a UDP socket
 sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)	# set the socket options to reuse address and port
 sock.bind((UDP_IP, IN_PORT))    # bind to address and port

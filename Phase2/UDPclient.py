@@ -3,6 +3,7 @@ import time
 import select
 import os
 import sys
+from collections import deque
 
 UDP_IP = "127.0.0.1"    # server IP
 UDP_PORT = 12001    # server Port
@@ -10,6 +11,14 @@ UDP_PORT = 12001    # server Port
 
 sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)	# open a UDP socket
 sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)  # set options for resuse addr and port
+
+def make_packets(fileobj, byte_per_pack):
+    data = fileobj.read(byte_per_pack)
+    packets = deque()
+    while data:
+        packets.append(data)
+        data = fileobj.read(byte_per_pack)
+    return packets
 
 def send_img(filepath):
     try:
@@ -22,14 +31,13 @@ def send_img(filepath):
     print("Sending filename to server")
     sock.sendto(filename.encode('utf-8'), (UDP_IP, UDP_PORT)) # send file name to server
 
-    data = f.read(1024) # read 1024 bytes
+    packets = make_packets(f, 1024)
 
     # while there is still data to send
     print('Sending file contents to server')
-    while(data):
-        if(sock.sendto(data, (UDP_IP, UDP_PORT))):	# send data to server
-            data = f.read(1024) # read another 1024
-            time.sleep(0.02)    # small wait
+    while packets:
+        if not sock.sendto(packets.popleft(), (UDP_IP, UDP_PORT)):	# send data to server
+            print('Error sending packet')
 
     f.close()
 
@@ -46,9 +54,9 @@ def wait_and_receive():
 
     f = open(filename, "wb") # open that file for writing binary
 
-    while(True):
+    while True:
         ready = select.select([sock], [], [], 3)    # wait until sock is ready for I/O
-        if(ready[0]):
+        if ready[0]:
             data, addr = sock.recvfrom(1024)    # read 1024 from server
             f.write(data)	# write it to a file
         else:
