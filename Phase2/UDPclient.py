@@ -3,11 +3,16 @@ import time
 import select
 import os
 import sys
-import utils
+import rdt
 
 UDP_IP = "127.0.0.1"    # server IP
 UDP_PORT = 12001    # server Port
+DEFAULT_FILEPATH = '../spongebob.bmp'
 
+if len(sys.argv) > 1:
+    img_filepath = sys.argv[1]
+else:
+    img_filepath = DEFAULT_FILEPATH
 
 sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)	# open a UDP socket
 sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)  # set options for resuse addr and port
@@ -16,21 +21,15 @@ def send_img(filepath):
     try:
         f = open(filepath, "rb")  # open that file for reading binary
     except FileNotFoundError:
-        print(f'{filename} does not exist')
+        print(f'{filepath} does not exist')
         return
 
-    filename = os.path.basename(filepath)
     print("Sending filename to server")
+    filename = os.path.basename(filepath)
     sock.sendto(filename.encode('utf-8'), (UDP_IP, UDP_PORT)) # send file name to server
 
-    packets = utils.make_packets(f, 1024)
-
-    # while there is still data to send
     print('Sending file contents to server')
-    while packets:
-        if not sock.sendto(packets.popleft(), (UDP_IP, UDP_PORT)):	# send data to server
-            print('Error sending packet')
-
+    rdt.rdt_send(f, (UDP_IP, UDP_PORT), sock)
     f.close()
 
 
@@ -57,13 +56,7 @@ def wait_and_receive():
 
     f.close()
 
-
-
-if len(sys.argv) < 2:
-    print('Please provide filepath to send')
-    sys.exit(1)
-
-send_img(sys.argv[1])
+send_img(img_filepath)
 wait_and_receive()
 
 sock.close()    # close socket
