@@ -5,12 +5,6 @@ import os
 import sys
 import utils
 
-UDP_IP = "127.0.0.1"    # server IP
-UDP_PORT = 12001    # server Port
-
-
-sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)	# open a UDP socket
-sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)  # set options for resuse addr and port
 
 def send_img(filepath):
     try:
@@ -56,14 +50,22 @@ def wait_and_receive():
             break
 
     f.close()
+    sock.close()    # close socket
+    
+def main():
+    UDP_IP = "127.0.0.1"    # server IP
+    UDP_PORT = 12001    # server Port
 
 
+    sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)	# open a UDP socket
+    sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)  # set options for resuse addr and port
 
-if len(sys.argv) < 2:
-    print('Please provide filepath to send')
-    sys.exit(1)
+    if len(sys.argv) < 2:
+        print('Please provide filepath to send')
+        sys.exit(1)
 
-send_img(sys.argv[1])
-wait_and_receive()
+    send_img(sys.argv[1])
+    wait_and_receive()
 
-sock.close()    # close socket
+ if __name__ == '__main__':
+    main()
