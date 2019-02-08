@@ -28,28 +28,20 @@ def send_img(sock, client, filepath):
     print("Sending file response")
     rdt.rdt_send(f, client, sock)
     f.close()
-            
+
+
 sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)		# open a UDP socket
 sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)	# set the socket options to reuse address and port
 sock.bind((UDP_IP, IN_PORT))    # bind to address and port
 
 while True:
     print('Server listening...')
-    data, addr = sock.recvfrom(1024)    # receive from client
-    if data:
-        file_name = data.strip().decode('utf-8')    # strip the header
-        print ("Recieved file name:", file_name)  # print file received
+    msg, addr = sock.recvfrom(1024)
+    if msg:
+        fileName = msg.strip().decode('utf-8')
+        print ("Recieved file name:", fileName)
 
-    f = open(file_name, 'wb')   # open that file for writing binary
-
-    while True:
-        ready = select.select([sock], [], [], timeout) # wait until sock is ready for I/O
-        if ready[0]:
-            data, addr = sock.recvfrom(1024)	# receive 1024 from client
-            f.write(data)   # write it to a file
-        else:
-            print ("%s Finish!" % file_name)    # finished writing 
-            f.close()	# close file
-            break
-
+    f = open(fileName, 'wb')
+    
+    rdt.rdt_rcv(f, fileName, sock)
     send_img(sock, addr, response_filepath)

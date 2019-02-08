@@ -45,16 +45,8 @@ def wait_and_receive():
 
     f = open(filename, "wb") # open that file for writing binary
 
-    while True:
-        ready = select.select([sock], [], [], 3)    # wait until sock is ready for I/O
-        if ready[0]:
-            data, addr = sock.recvfrom(1024)    # read 1024 from server
-            f.write(data)	# write it to a file
-        else:
-            print(f'{filename} finished')  # finished reading file
-            break
+    rdt.rdt_rcv(f, filename, sock)
 
-    f.close()
 
 send_img(img_filepath)
 wait_and_receive()
