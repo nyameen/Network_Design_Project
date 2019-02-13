@@ -1,3 +1,7 @@
-Phishing
-1) http://www.ra.ethz.ch/CDStore/www2007/www2007.org/papers/paper550.pdf
-2) https://ieeexplore.ieee.org/abstract/document/8474820		Must be on UML network
+Honeypots and Intrusion Detection Systems
+1) https://www.researchgate.net/profile/Nicolas_Sklavos/publication/328430317_Approaches_for_Preventing_Honeypot_Detection_and_Compromise/links/5bd874da299bf1124fae1d52/Approaches-for-Preventing-Honeypot-Detection-and-Compromise.pdf
+2) 
+
+Bit Torrent
+1) https://ieeexplore.ieee.org/abstract/document/8613251        <- need to be on school network
+2)
