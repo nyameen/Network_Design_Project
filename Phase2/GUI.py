@@ -6,23 +6,25 @@ import os
 
 
 def Client():
-	from UDPclient import main
+	from UDPclient import UDPclient
 	entered_text = textentry.get()
 	f = None
 	if entered_text:
 		f = os.path.join(current_dir, entered_text)
 		print(f)
-	t1 = threading.Thread(target = main, args =[f])
+	client = UDPclient(f)
+	t1 = threading.Thread(target = client.start_send)
 	t1.start()
 
 def Server():
-	from UDPserver import main
+	from UDPserver import UDPserver 
 	entered_text = textentry.get()
 	f = None
 	if entered_text:
 		f = os.path.join(current_dir, entered_text)
-		print(f)
-	t2 = threading.Thread(target = main, args =[f])
+		print(f'Server response file is {f}')
+	server = UDPserver(f)
+	t2 = threading.Thread(target = server.listen)
 	t2.start()
 
 def Exit():
