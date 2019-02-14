@@ -1,7 +1,17 @@
 Honeypots and Intrusion Detection Systems
 1) https://www.researchgate.net/profile/Nicolas_Sklavos/publication/328430317_Approaches_for_Preventing_Honeypot_Detection_and_Compromise/links/5bd874da299bf1124fae1d52/Approaches-for-Preventing-Honeypot-Detection-and-Compromise.pdf
-2) 
+    - how Honeypots can be detected and circumvented/evaded by attackers.
+    - Reccomendations for how to design honeypot software that can combat this.
+2) https://ieeexplore.ieee.org/abstract/document/5342609
+    - using honeypots in financial setting to combat and prevent phishing
+    - use of phishing detectors with honeypot systems, honeytokens, and "phoneybots" to.
+3. https://content.taylorfrancis.com/books/download?dac=C2010-0-49721-9&isbn=9781439869994&format=googlePreviewPdf
+    - [NOT A FULL SOURCE]
+    - Google preview of book on honeypots
+    - Has first couple chapters with definition and distinction of honeypot, intrusion detection, etc.  Good for background info
 
 Bit Torrent
 1) https://ieeexplore.ieee.org/abstract/document/8613251        <- need to be on school network
-2)
+
+2)https://ieeexplore.ieee.org/abstract/document/5482574
+    - Details how bittorrent ecosystem works and goes in depth on current (2011) status of trackers/peers/torrent discovery and how these mechanism works and relevant statistics/equations 
