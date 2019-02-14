@@ -6,16 +6,13 @@ import sys
 import rdt
 
 
-def main(file):
+def main(f):
 
     UDP_IP = "127.0.0.1"    # server IP
     UDP_PORT = 12001    # server Port
     DEFAULT_FILEPATH = '../spongebob.bmp'
 
-    if len(file) > 1:
-        img_filepath = file
-    else:
-        img_filepath = DEFAULT_FILEPATH
+    img_filepath = f or DEFAULT_FILEPATH
 
     sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)	# open a UDP socket
     sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)  # set options for resuse addr and port

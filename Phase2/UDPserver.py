@@ -6,17 +6,13 @@ import os
 import rdt
 
 
-def main(file):
+def main(f):
 
     UDP_IP = "127.0.0.1"	# Server IP
     IN_PORT = 12001	    # port
     DEFAULT_FILEPATH = '../spongebob.bmp'
-    timeout = 3	# timeout
 
-    if len(file) > 1:
-        response_filepath = file
-    else:
-        response_filepath = DEFAULT_FILEPATH
+    response_filepath = f or DEFAULT_FILEPATH
 
     # function to send an image
     def send_img(sock, client, filepath):

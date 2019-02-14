@@ -8,24 +8,29 @@ import os
 def Client():
 	from UDPclient import main
 	entered_text = textentry.get()
-	file = current_dir + "\\" + entered_text
-	print(file)
-	t1 = threading.Thread(target = main, args =[file])
+	f = None
+	if entered_text:
+		f = os.path.join(current_dir, entered_text)
+		print(f)
+	t1 = threading.Thread(target = main, args =[f])
 	t1.start()
 
 def Server():
 	from UDPserver import main
 	entered_text = textentry.get()
-	file = current_dir + "\\" + entered_text
-	print(file)
-	t2 = threading.Thread(target = main, args =[file])
+	f = None
+	if entered_text:
+		f = os.path.join(current_dir, entered_text)
+		print(f)
+	t2 = threading.Thread(target = main, args =[f])
 	t2.start()
 
 def Exit():
 	exit()
 
-image = 'server2.png'
+server_png = 'server.png'
 current_dir = os.getcwd()
+server_photo_path = os.path.join(current_dir, server_png)
 
 #### main
 window = Tk()
@@ -33,9 +38,10 @@ window.title("UDP Server")
 window.configure(background = "black")
 window.geometry("550x450") 
 
-#### photo 
-photol = PhotoImage(file = current_dir+'\\'+image)
-image_1 = Label(window, image = photol, bg = "black") .grid(row =0, column = 0,sticky = W)
+#### add server photo 
+pil_img = Image.open(server_photo_path)
+server_photo = ImageTk.PhotoImage(pil_img)
+image_1 = Label(window, image = server_photo, bg = "black").grid(row =0, column = 0,sticky = W)
 
 #### buttons for server, client, exit 
 Button (window, text = "Client", width = 6, command = Client) .grid(row = 4, column = 0, padx = 5, pady= 5)
