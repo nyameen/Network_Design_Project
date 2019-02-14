@@ -5,14 +5,14 @@ from _thread import *
 import os 
 
 
-def Client():
+def Client(cb):
 	from UDPclient import UDPclient
 	entered_text = textentry.get()
 	f = None
 	if entered_text:
 		f = os.path.join(current_dir, entered_text)
 		print(f)
-	client = UDPclient(f)
+	client = UDPclient(f, cb)
 	t1 = threading.Thread(target = client.start_send)
 	t1.start()
 
@@ -45,10 +45,28 @@ pil_img = Image.open(server_photo_path)
 server_photo = ImageTk.PhotoImage(pil_img)
 image_1 = Label(window, image = server_photo, bg = "black").grid(row =0, column = 0,sticky = W)
 
+server_text = StringVar()
+Label (window, textvariable=server_text, bg ="black", fg ="white", font = "none 10 bold") .grid(row = 3, column = 4)
+
+client_text = StringVar()
+Label (window, textvariable=client_text, bg ="black", fg ="white", font = "none 10 bold") .grid(row = 4, column = 4)
+
+def run_server():
+	server_text.set("Server listening...")
+	Server()
+
+def client_callback():
+	client_text.set("Client finished.")
+
+def start_client():
+	client_text.set("Client working...")
+	Client(client_callback)
+
+
 #### buttons for server, client, exit 
-Button (window, text = "Client", width = 6, command = Client) .grid(row = 4, column = 0, padx = 5, pady= 5)
-Button (window, text = "Server", width = 6, command = Server) .grid(row = 3, column = 0)
-Button (window, text = "Exit", width = 6, command = Exit) .grid(row = 5, column = 0)
+Button (window, text = "Start Client", width = 8, command = start_client) .grid(row = 4, column = 0, padx = 5, pady= 5)
+Button (window, text = "Start server", width = 8, command = run_server) .grid(row = 3, column = 0)
+Button (window, text = "Exit", width = 8, command = Exit) .grid(row = 5, column = 0)
 
 #### text entry for image path
 Label (window, text="Specify Image to send:",bg ="black", fg ="white", font = "none 12 bold") .grid(row = 0, column = 4)

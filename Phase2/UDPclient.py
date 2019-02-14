@@ -12,9 +12,10 @@ UDP_PORT = 12001    # server Port
 
 class UDPclient:
 
-    def __init__(self, filepath):
+    def __init__(self, filepath, callback_func):
+        self.cb = callback_func
+
         self.udp_info = (UDP_IP, UDP_PORT)
-        
         self.img_filepath = filepath or DEFAULT_FILEPATH
 
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)	# open a UDP socket
@@ -55,6 +56,7 @@ class UDPclient:
         self.send_img(self.img_filepath)
         self.wait_and_receive()
         self.sock.close()    # close socket
+        self.cb()
 
     def print(self, print_str):
         print(f'Client: {print_str}')
