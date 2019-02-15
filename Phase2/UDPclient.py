@@ -5,7 +5,7 @@ import os
 import sys
 import rdt
 
-DEFAULT_FILEPATH = os.path.join('..', 'spongebob.bmp')
+DEFAULT_FILEPATH = 'spongebob.bmp'
 UDP_IP = "127.0.0.1"    # server IP
 UDP_PORT = 12001    # server Port
 
