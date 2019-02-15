@@ -9,6 +9,8 @@ Honeypots and Intrusion Detection Systems
     - [NOT A FULL SOURCE]
     - Google preview of book on honeypots
     - Has first couple chapters with definition and distinction of honeypot, intrusion detection, etc.  Good for background info
+4. https://www.sciencedirect.com/science/article/pii/S0167404808000692
+    - different types of intrusion detection systems 
 
 Bit Torrent
 1) https://ieeexplore.ieee.org/abstract/document/8613251        <- need to be on school network
