@@ -12,6 +12,10 @@ Honeypots and Intrusion Detection Systems
 
 Bit Torrent
 1) https://ieeexplore.ieee.org/abstract/document/8613251        <- need to be on school network
+    - Study to use BitTorrent for content distribution for Social Networks
 
 2)https://ieeexplore.ieee.org/abstract/document/5482574
     - Details how bittorrent ecosystem works and goes in depth on current (2011) status of trackers/peers/torrent discovery and how these mechanism works and relevant statistics/equations 
+
+3) http://paper.ijcsns.org/07_book/201711/20171112.pdf
+    - Study on making BitTorrent energy effiecnt in today's idea of being Green/Energy Efficient
