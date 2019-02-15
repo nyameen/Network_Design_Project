@@ -71,7 +71,6 @@ def rdt_rcv(file, fileName, sock):
         if data:
             deliver_data(file, data)
         else:
-            print("%s Finsish!" % fileName)
             file.close()
             break
             
