@@ -14,9 +14,9 @@ def extract(sock, bytesize=1024):
     ready = select.select([sock], [], [], timeout)
     if ready[0]:
         data, addr = sock.recvfrom(1024)
-        return data, data
+        return data
     else:
-        return 0, 0
+        return 0
 
 ##       deliver_data()
 ##Parameters:
@@ -67,7 +67,7 @@ def rdt_send(file, endpoint, sock):
 ##    sock     - the socket to send through            
 def rdt_rcv(file, fileName, sock):    
     while True:
-        packet, data = extract(sock)
+        data = extract(sock)
         if data:
             deliver_data(file, data)
         else:

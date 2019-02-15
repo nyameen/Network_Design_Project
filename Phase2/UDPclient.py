@@ -22,12 +22,7 @@ class UDPclient:
         self.sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)  # set options for resuse addr and port
 
     def send_img(self, filepath):
-        try:
-            f = open(filepath, "rb")  # open that file for reading binary
-        except FileNotFoundError:
-            self.print(f'{filepath} does not exist')
-            return
-
+        f = open(filepath, "rb")  # open that file for reading binary
         filename = os.path.basename(filepath)
         self.print(f"Sending filename {filename} to server")
         self.sock.sendto(filename.encode('utf-8'), self.udp_info) # send file name to server
@@ -53,7 +48,12 @@ class UDPclient:
         self.print(f'Finished writing received file {filename}')
 
     def start_send(self):
-        self.send_img(self.img_filepath)
+        try:
+            self.send_img(self.img_filepath)
+        except FileNotFoundError:
+            self.print(f'{self.img_filepath} does not exist')
+            self.cb()
+            return
         self.wait_and_receive()
         self.sock.close()    # close socket
         self.cb()

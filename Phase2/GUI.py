@@ -11,7 +11,7 @@ def Client(cb):
 	f = None
 	if entered_text:
 		f = os.path.join(current_dir, entered_text)
-		print(f)
+		print(f'Client to send file: {f}')
 	client = UDPclient(f, cb)
 	t1 = threading.Thread(target = client.start_send)
 	t1.start()
@@ -61,7 +61,6 @@ def client_callback():
 def start_client():
 	client_text.set("Client working...")
 	Client(client_callback)
-
 
 #### buttons for server, client, exit 
 Button (window, text = "Start Client", width = 8, command = start_client) .grid(row = 4, column = 0, padx = 5, pady= 5)
