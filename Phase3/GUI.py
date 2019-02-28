@@ -27,9 +27,6 @@ def Server():
 	t2 = threading.Thread(target = server.listen)
 	t2.start()
 
-def Exit():
-	exit()
-
 server_png = 'server.png'
 current_dir = os.getcwd()
 server_photo_path = os.path.join(current_dir, server_png)
@@ -65,7 +62,7 @@ def start_client():
 #### buttons for server, client, exit 
 Button (window, text = "Start Client", width = 8, command = start_client) .grid(row = 4, column = 0, padx = 5, pady= 5)
 Button (window, text = "Start server", width = 8, command = run_server) .grid(row = 3, column = 0)
-Button (window, text = "Exit", width = 8, command = Exit) .grid(row = 5, column = 0)
+Button (window, text = "Close", width = 8, command = window.destroy) .grid(row = 5, column = 0)
 
 #### text entry for image path
 Label (window, text="Specify Image to send:",bg ="black", fg ="white", font = "none 12 bold") .grid(row = 0, column = 4)
