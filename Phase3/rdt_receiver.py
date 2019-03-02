@@ -68,8 +68,10 @@ def rdt_rcv(file, endpoint, sock):
             data   = pkt[1:1025]
             ck     = pkt[1025:]
             
-            #corrupt pkt if need be 
-            #corrupt_bits(data)
+            channel = random_channel()
+            if(channel == unrealiable):
+                #corrupt pkt if need be 
+                #corrupt_bits(data)
             
             # correct sequence number
             if seq == recSeq:
