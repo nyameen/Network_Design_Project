@@ -75,8 +75,10 @@ def rdt_rcv(sock, seqNum):
     recSeq = data[4:5]
     cksum  = data[5:]
     
-    #corrupt ACK if need be 
-    #corrupt_bits(ACK)
+   channel = random_channel()
+   if(channel == unreliable):  
+        #corrupt ACK if need be 
+        #corrupt_bits(ACK)
     
     if ACK == b'1111' and recSeq == seqNum:
         return 1
