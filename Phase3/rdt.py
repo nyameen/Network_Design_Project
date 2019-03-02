@@ -86,7 +86,7 @@ def corrupt_bits(data):
 ##  none
 def random_channel():
 
-	foo = ['reliable_channel','unreliable_channel']
+	foo = ['reliable','unreliable']
 	choice = random.choice(foo)
 	return choice
 
