@@ -67,7 +67,10 @@ def rdt_rcv(file, endpoint, sock):
             recSeq = pkt[0:1]
             data   = pkt[1:1025]
             ck     = pkt[1025:]
-
+            
+            #corrupt pkt if need be 
+            #corrupt_bits(data)
+            
             # correct sequence number
             if seq == recSeq:
                 deliver_data(file, data)
