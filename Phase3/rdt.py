@@ -74,7 +74,11 @@ def rdt_rcv(file, fileName, sock):
             file.close()
             break
             
-        
+            
+##      corrupt_datat()
+def corrupt_bits(data):
+    data = ~data
+    
 
 
 
