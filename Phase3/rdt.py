@@ -74,12 +74,21 @@ def rdt_rcv(file, fileName, sock):
             file.close()
             break
             
-            
 ##      corrupt_datat()
+##Parameters:
+##  data        - either ACK or DATA 
 def corrupt_bits(data):
     data = ~data
     
 
+##      random
+##Parameters:
+##  none
+def random_channel():
+
+	foo = ['reliable_channel','unreliable_channel']
+	choice = random.choice(foo)
+	return choice
 
 
 
