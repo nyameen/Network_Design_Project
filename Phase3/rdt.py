@@ -68,6 +68,7 @@ def rdt_send(file, endpoint, sock):
 def rdt_rcv(file, fileName, sock):    
     while True:
         data = extract(sock)
+        print(data)
         if data:
             deliver_data(file, data)
         else:
