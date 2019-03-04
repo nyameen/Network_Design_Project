@@ -1,6 +1,7 @@
 import socket
 import select
 import time
+from random import randint
 
 ##       extract()
 ##Parameters:
@@ -23,6 +24,19 @@ def extract(sock, bytesize=2048):
 def udt_send(packet, endpoint, sock):
     return sock.sendto(packet, endpoint)
 
+def bit_error(pkt, threshold=50):
+    b = pkt[3:]
+    err_b = []
+    for byte in b:
+        mut_byte = byte
+        mask = 128
+        while mask:
+            if randint(0, 100) < threshold:
+                mut_byte ^= mask
+            mask >>= 1
+
+
+
 ##       make_pkt()
 ##Parameters:
 ##    file   - the file to create a packet with
@@ -36,6 +50,7 @@ def make_pkt(file, seqNum, cksum, bytesize=1024):
         return 0
 
     pkt = seqNum + data + cksum
+    bit_error(pkt)
     return pkt
     
 ##       rdt_send()
@@ -75,27 +90,9 @@ def rdt_rcv(sock, seqNum):
     recSeq = data[4:5]
     cksum  = data[5:]
     
-   channel = random_channel()
-   if(channel == unreliable):  
-        #corrupt ACK if need be 
-        #corrupt_bits(ACK)
-    
     if ACK == b'1111' and recSeq == seqNum:
         return 1
     else:
         return 0
             
-        
-
-
-
-
-
-
-
-
-
-
-
-
         
