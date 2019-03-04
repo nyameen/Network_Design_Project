@@ -4,6 +4,7 @@ import time
 import sys
 import os
 import rdt
+import rdt_receiver
 
 DEFAULT_FILEPATH = 'spongebob.bmp'
 UDP_IP = "127.0.0.1"	# Server IP
@@ -45,7 +46,7 @@ class UDPserver:
             self.print(f'Writing filename {fileName}')
             f = open(fileName, 'wb') # open for writing binary
             
-            rdt.rdt_rcv(f, fileName, self.sock)	# RDT receive
+            rdt_receiver.rdt_rcv(f, fileName, self.sock)	# RDT receive
             self.print(f'Finished writing received file {fileName}')
             self.send_img(addr) # respond by sending an image
 

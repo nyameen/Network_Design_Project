@@ -4,6 +4,7 @@ import select
 import os
 import sys
 import rdt
+import rdt_sender
 
 DEFAULT_FILEPATH = 'spongebob.bmp'
 UDP_IP = "127.0.0.1"    # server IP
@@ -28,7 +29,7 @@ class UDPclient:
         self.sock.sendto(filename.encode('utf-8'), self.udp_info) # send file name to server
 
         self.print('Sending file contents to server')
-        rdt.rdt_send(f, self.udp_info, self.sock)
+        rdt_sender.rdt_send(f, self.udp_info, self.sock)
         f.close()
 
 

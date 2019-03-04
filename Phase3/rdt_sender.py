@@ -23,6 +23,32 @@ def extract(sock, bytesize=2048):
 def udt_send(packet, endpoint, sock):
     return sock.sendto(packet, endpoint)
 
+##       calc_checksum()
+##Parameters:
+##    data - data in bytes format
+##Return:
+##    checksum (int) calculated via 1's complement of wraparound 16bit sum 
+def calc_checksum(data):
+    lower_16_bits = int('0xFFFF', 16)
+
+    bin_sum = 0
+    for i in range(2, len(data) - 1, 2):
+        bin_sum += (data[i] << 8) | data[i+1]
+        if bin_sum & int('0x10000', 16):
+            bin_sum = bin_sum & lower_16_bits
+            bin_sum += 1
+
+    return bin_sum ^ lower_16_bits
+
+
+##       parse_checksum()
+##Parameters:
+##    byte_data - 16b checksum in form of 2 bytes (big endian)
+##Return:
+##    checksum integer
+def parse_checksum(byte_data):
+    return (byte_data[0] << 8) + byte_data[1]
+
 ##       make_pkt()
 ##Parameters:
 ##    file   - the file to create a packet with
@@ -30,13 +56,16 @@ def udt_send(packet, endpoint, sock):
 ##    cksum  - the checksum value
 ##Return:
 ##    the packet
-def make_pkt(file, seqNum, cksum, bytesize=1024):
+def make_pkt(file, seqNum, bytesize=1024):
     data = file.read(bytesize)
     if data == b'':
         return 0
+    packet = seqNum + data
+    chksum = calc_checksum(packet)
 
-    pkt = seqNum + data + cksum
-    return pkt
+    chksum_bytes = (chksum).to_bytes(2, byteorder='big')
+    packet += chksum_bytes
+    return packet
     
 ##       rdt_send()
 ##Parameters:
@@ -46,11 +75,11 @@ def make_pkt(file, seqNum, cksum, bytesize=1024):
 ##      If sending to client: client addr
 ##    sock   - the socket to send through
 def rdt_send(file, endpoint, sock):
-    seqNum = 0
+    seqNum = 1
     seq = bin(seqNum)[2:].encode("utf-8")
-    ck = bin(7)[2:].encode("utf-8")
-    
-    packet = make_pkt(file, seq, ck)
+
+    packet = make_pkt(file, seq)
+
     while packet != 0:
         if(udt_send(packet, endpoint, sock)):
             if(rdt_rcv(sock, seq) == 1):
@@ -60,7 +89,7 @@ def rdt_send(file, endpoint, sock):
                     seqNum = 0
 
                 seq = bin(seqNum)[2:].encode("utf-8")
-                packet = make_pkt(file, seq, ck)
+                packet = make_pkt(file, seq)
                 time.sleep(0.005)
 
 ##       rdt_rcv()
@@ -73,14 +102,16 @@ def rdt_rcv(sock, seqNum):
     # parse packets
     ACK    = data[0:4]
     recSeq = data[4:5]
-    cksum  = data[5:]
+    rec_cksum  = parse_checksum(data[5:])
+
+    checksum = calc_checksum(data[:5])
     
-   channel = random_channel()
-   if(channel == unreliable):  
+    #channel = random_channel()
+    #if(channel == unreliable):  
         #corrupt ACK if need be 
         #corrupt_bits(ACK)
     
-    if ACK == b'1111' and recSeq == seqNum:
+    if ACK == b'1111' and recSeq == seqNum and rec_cksum == checksum:
         return 1
     else:
         return 0
