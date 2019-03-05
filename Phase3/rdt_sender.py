@@ -75,7 +75,7 @@ def make_pkt(file, seqNum, bytesize=1024):
 ##      If sending to client: client addr
 ##    sock   - the socket to send through
 def rdt_send(file, endpoint, sock):
-    seqNum = 1
+    seqNum = 0
     seq = bin(seqNum)[2:].encode("utf-8")
 
     packet = make_pkt(file, seq)

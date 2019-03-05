@@ -3,7 +3,8 @@ import time
 import select
 import os
 import sys
-import rdt
+#import rdt
+import rdt_receiver
 import rdt_sender
 
 DEFAULT_FILEPATH = 'spongebob.bmp'
@@ -45,7 +46,7 @@ class UDPclient:
 
         f = open(filename, "wb") # open that file for writing binary
 
-        rdt.rdt_rcv(f, filename, self.sock)
+        rdt_receiver.rdt_rcv(f, self.udp_info, self.sock)
         self.print(f'Finished writing received file {filename}')
 
     def start_send(self):

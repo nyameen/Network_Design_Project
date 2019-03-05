@@ -88,7 +88,7 @@ def rdt_rcv(file, endpoint, sock):
     ACK = bin(15)[2:].encode('utf-8')
     
     while True:
-        pkt = extract(sock)        
+        pkt = extract(sock)
         if pkt:
             #parse packet
             recSeq = pkt[0:1]
@@ -105,7 +105,7 @@ def rdt_rcv(file, endpoint, sock):
             # correct sequence number
             if seq == recSeq and chksum == rec_ck:
                 deliver_data(file, data)
-                sndpkt = make_pkt(ACK, recSeq, ck)
+                sndpkt = make_pkt(ACK, recSeq, chksum)
                 udt_send(sndpkt, endpoint, sock)
 
                 # switch sequence number
