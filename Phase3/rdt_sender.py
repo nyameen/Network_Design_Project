@@ -9,8 +9,13 @@ import time
 ##Return:
 ##    the packet and data received
 def extract(sock, bytesize=2048):
-    data, addr = sock.recvfrom(bytesize)
-    return data
+    timeout = 3
+    ready = select.select([sock], [], [], timeout)
+    if ready[0]:
+        data, addr = sock.recvfrom(bytesize)
+        return data
+    else:
+        return 0
 
 
 ##       udt_send()
@@ -60,11 +65,11 @@ def make_pkt(file, seqNum, bytesize=1024):
     data = file.read(bytesize)
     if data == b'':
         return 0
-    packet = seqNum + data
-    chksum = calc_checksum(packet)
+    calc = seqNum + data
+    chksum = calc_checksum(calc)
 
     chksum_bytes = (chksum).to_bytes(2, byteorder='big')
-    packet += chksum_bytes
+    packet = seqNum + chksum_bytes + data
     return packet
     
 ##       rdt_send()
@@ -87,7 +92,6 @@ def rdt_send(file, endpoint, sock):
                     seqNum = 1
                 else:
                     seqNum = 0
-
                 seq = bin(seqNum)[2:].encode("utf-8")
                 packet = make_pkt(file, seq)
                 time.sleep(0.005)
@@ -98,6 +102,9 @@ def rdt_send(file, endpoint, sock):
 ##    seqNum   - the expected sequence number
 def rdt_rcv(sock, seqNum):    
     data = extract(sock)
+
+    if data == 0:
+        return 0
 
     # parse packets
     ACK    = data[0:4]
@@ -112,8 +119,10 @@ def rdt_rcv(sock, seqNum):
         #corrupt_bits(ACK)
     
     if ACK == b'1111' and recSeq == seqNum and rec_cksum == checksum:
+        #print('OK')
         return 1
     else:
+        #print('NOK')
         return 0
             
         

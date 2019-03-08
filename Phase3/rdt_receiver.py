@@ -83,6 +83,7 @@ def parse_checksum(byte_data):
 ##    endpoint - the endpoint
 ##    sock     - the socket to send through            
 def rdt_rcv(file, endpoint, sock):
+    oncethru = 0
     seqNum = 0
     seq = bin(seqNum)[2:].encode("utf-8")
     ACK = bin(15)[2:].encode('utf-8')
@@ -90,12 +91,14 @@ def rdt_rcv(file, endpoint, sock):
     while True:
         pkt = extract(sock)
         if pkt:
+            #print('pkt')
             #parse packet
             recSeq = pkt[0:1]
-            data   = pkt[1:1025]
-            rec_ck = parse_checksum(pkt[1025:])
-
-            chksum = calc_checksum(pkt[:1025])
+            rec_ck = parse_checksum(pkt[1:3])
+            data = pkt[3:]
+            
+            calc = recSeq + data
+            chksum = calc_checksum(calc)
             
             #channel = random_channel()
             #if(channel == unrealiable):
@@ -104,6 +107,7 @@ def rdt_rcv(file, endpoint, sock):
             
             # correct sequence number
             if seq == recSeq and chksum == rec_ck:
+                #print('good')
                 deliver_data(file, data)
                 sndpkt = make_pkt(ACK, recSeq, chksum)
                 udt_send(sndpkt, endpoint, sock)
@@ -114,10 +118,15 @@ def rdt_rcv(file, endpoint, sock):
                 else:
                     seqNum = 0
                 seq = bin(seqNum)[2:].encode("utf-8")
+                oncethru = 1
             else:
                 # didn't receive right pkt, either seqnum wrong or cksum
-                pass
+                #print('bad')
+                if oncethru == 1:
+                    print(sndpkt)
+                    udt_send(sndpkt, endpoint, sock)
         else:
+            #print('no pkt')
             file.close()
             break
             
