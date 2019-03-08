@@ -125,17 +125,3 @@ def rdt_rcv(sock, seqNum):
         #print('NOK')
         return 0
             
-        
-
-
-
-
-
-
-
-
-
-
-
-
-        
