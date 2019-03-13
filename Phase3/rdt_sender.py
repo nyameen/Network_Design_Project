@@ -1,6 +1,7 @@
 import socket
 import select
 import time
+from rdt import random_channel,corrupt_bits
 
 ##       extract()
 ##Parameters:
