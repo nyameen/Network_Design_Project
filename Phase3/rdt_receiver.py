@@ -1,6 +1,7 @@
 import socket
 import select
 import time
+from rdt import corrupt_bits, random_channel
 
 ##       extract()
 ##Parameters:
@@ -98,12 +99,14 @@ def rdt_rcv(file, endpoint, sock):
             data = pkt[3:]
             
             calc = recSeq + data
+            
+            channel = random_channel
+            if(channel < 100):
+                corrupt_bits(data)
+        
             chksum = calc_checksum(calc)
             
-            #channel = random_channel()
-            #if(channel == unrealiable):
-                #corrupt pkt if need be 
-                #corrupt_bits(data)
+           
             
             # correct sequence number
             if seq == recSeq and chksum == rec_ck:
