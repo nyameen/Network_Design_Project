@@ -77,19 +77,18 @@ def rdt_rcv(file, fileName, sock):
 ##      corrupt_datat()
 ##Parameters:
 ##  data        - either ACK or DATA 
-def corrupt_bits(data):
-    data = ~data
-    
+def corrupt_bits(pkt):
+    index = random.randint(0, len(pkt)-1)
+    pkt = pkt[:index] + bytearray(chr(random.randint(0, 95)),'utf-8') + pkt[index+1:]
+    return pkt
 
 ##      random
 ##Parameters:
 ##  none
 def random_channel():
 
-	foo = ['reliable','unreliable']
-	choice = random.choice(foo)
-	return choice
-
+    choice = random.randint(0,100)
+    return choice
 
 
 
