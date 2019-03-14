@@ -3,7 +3,6 @@ import select
 import time
 import sys
 import os
-#import rdt
 import rdt_receiver
 import rdt_sender
 

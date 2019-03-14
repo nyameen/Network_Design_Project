@@ -30,6 +30,6 @@ Files received by the client will be entitled "client_recv_{{whatever filename w
 Files received by the server will be entitled "server_recv_{{whatever filename was received}}"
 
 3) The different scenarios in this project can be seen by doing the following:
-	A. No loss/err: leave (LINES OF CODE) commented in rdt_sender.py and (LINES OF CODE) commented in rdt_receiver.py
-	B. ACK Bit err: in rdt_sender.py uncomment lines ### in the rdt_rcv() function
-	C. Data Loss err: in rdt_receiver.py uncomment lines ### in the rdt_rcv() function
+	A. No loss/err: put a 0 in the if statment on line 132 in rdt_sender.py and put a 0 in the if statment on line 118 in rdt_receiver.py
+	B. ACK Bit err: in rdt_sender.py put 5, 10, ..., 60 on line 132 in the rdt_rcv() function keep 0 on 118 in rdt_receiver.py
+	C. Data Loss err: in rdt_receiver.py put 5, 10, ..., 60 on line 118 in the rdt_rcv() function keep 0 on 132 in rdt_sender.py

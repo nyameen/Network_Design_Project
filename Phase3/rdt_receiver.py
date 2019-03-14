@@ -1,7 +1,23 @@
 import socket
 import select
 import time
-from rdt import corrupt_bits, random_channel
+import random
+
+##      corrupt_datat()
+##Parameters:
+##  data        - either ACK or DATA 
+def corrupt_bits(pkt):
+    index = random.randint(0, len(pkt)-1)
+    pkt = pkt[:index] + bytearray(chr(random.randint(0, 95)),'utf-8') + pkt[index+1:]
+    return pkt
+
+##      random
+##Parameters:
+##  none
+def random_channel():
+
+    choice = random.randint(0,100)
+    return choice
 
 ##       extract()
 ##Parameters:
@@ -98,11 +114,12 @@ def rdt_rcv(file, endpoint, sock):
             rec_ck = parse_checksum(pkt[1:3])
             data = pkt[3:]
             
-            calc = recSeq + data
-            
-            channel = random_channel
-            if(channel < 100):
-                corrupt_bits(data)
+            rnd = random_channel()
+            if(rnd < 10):
+                corruptData = corrupt_bits(data)
+                calc = recSeq + corruptData
+            else:
+                calc = recSeq + data
         
             chksum = calc_checksum(calc)
             
@@ -126,7 +143,7 @@ def rdt_rcv(file, endpoint, sock):
                 # didn't receive right pkt, either seqnum wrong or cksum
                 #print('bad')
                 if oncethru == 1:
-                    print(sndpkt)
+                    #print(sndpkt)
                     udt_send(sndpkt, endpoint, sock)
         else:
             #print('no pkt')

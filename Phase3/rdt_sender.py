@@ -1,7 +1,23 @@
 import socket
 import select
 import time
-from rdt import random_channel,corrupt_bits
+import random
+
+##      corrupt_datat()
+##Parameters:
+##  data        - either ACK or DATA 
+def corrupt_bits(pkt):
+    index = random.randint(0, len(pkt)-1)
+    pkt = pkt[:index] + bytearray(chr(random.randint(0, 95)),'utf-8') + pkt[index+1:]
+    return pkt
+
+##      random
+##Parameters:
+##  none
+def random_channel():
+
+    choice = random.randint(0,100)
+    return choice
 
 ##       extract()
 ##Parameters:
@@ -112,12 +128,13 @@ def rdt_rcv(sock, seqNum):
     recSeq = data[4:5]
     rec_cksum  = parse_checksum(data[5:])
 
-    checksum = calc_checksum(data[:5])
-    
-    #channel = random_channel()
-    #if(channel == unreliable):  
-        #corrupt ACK if need be 
-        #corrupt_bits(ACK)
+    rnd = random_channel()
+    if(rnd < 0):
+        corruptData = corrupt_bits(ACK)
+        calc =  corruptData + recSeq
+    else:
+        calc = ACK + recSeq
+    checksum = calc_checksum(calc)
     
     if ACK == b'1111' and recSeq == seqNum and rec_cksum == checksum:
         #print('OK')
