@@ -116,7 +116,7 @@ def rdt_rcv(file, endpoint, sock):
             data = pkt[3:]
             
             
-            if(config.corupt_option == 2):
+            if(config.corrupt_option == 2):
                 rnd = random_channel()
                 if(rnd < config.percent_corrupt):
                     corruptData = corrupt_bits(data)
