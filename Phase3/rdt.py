@@ -88,7 +88,7 @@ def corrupt_bits(pkt):
 ##  none
 def random_channel():
 
-    choice = random.randint(0,config.percent_corrupt)
+    choice = random.randint(0,100)
     return choice
 
 
