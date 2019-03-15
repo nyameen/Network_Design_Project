@@ -2,7 +2,8 @@ import socket
 import select
 import time
 import random
-
+import config
+e
 ##      corrupt_datat()
 ##Parameters:
 ##  data        - either ACK or DATA 
@@ -114,12 +115,14 @@ def rdt_rcv(file, endpoint, sock):
             rec_ck = parse_checksum(pkt[1:3])
             data = pkt[3:]
             
-            rnd = random_channel()
-            if(rnd < 10):
-                corruptData = corrupt_bits(data)
-                calc = recSeq + corruptData
-            else:
-                calc = recSeq + data
+            
+            if(config.corupt option == 2):
+                rnd = random_channel()
+                if(rnd < 10):
+                    corruptData = corrupt_bits(data)
+                    calc = recSeq + corruptData
+                else:
+                    calc = recSeq + data
         
             chksum = calc_checksum(calc)
             
