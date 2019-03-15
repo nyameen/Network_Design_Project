@@ -49,6 +49,7 @@ class UDPclient:
         self.print(f'Finished writing received file {filename}')
 
     def start_send(self):
+        starttime = time.time()
         try:
             self.send_img(self.img_filepath)
         except FileNotFoundError:
@@ -58,6 +59,9 @@ class UDPclient:
         self.wait_and_receive()
         self.sock.close()    # close socket
         self.cb()
+        endtime = time.time()
+        elapsedtime = "{:.4f}".format(endtime - starttime)
+        self.print(f'Time to finish {elapsedtime}')
 
     def print(self, print_str):
         print(f'Client: {print_str}')
