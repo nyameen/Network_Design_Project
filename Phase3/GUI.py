@@ -3,14 +3,17 @@ from tkinter import *
 from PIL import Image, ImageTk
 from _thread import *
 import os 
-
+import config
 
 def Client(cb):
 	from UDPclient import UDPclient
 	entered_text = textentry.get()
+	
+	file,option,percent_corrupt = entered_text.split()
+	
 	f = None
 	if entered_text:
-		f = os.path.join(current_dir, entered_text)
+		f = os.path.join(current_dir, file)
 		print(f'Client to send file: {f}')
 	client = UDPclient(f, cb)
 	t1 = threading.Thread(target = client.start_send)
@@ -19,9 +22,12 @@ def Client(cb):
 def Server():
 	from UDPserver import UDPserver 
 	entered_text = textentry.get()
+	
+	file,option,percent_corrupt = entered_text.split()
+	
 	f = None
 	if entered_text:
-		f = os.path.join(current_dir, entered_text)
+		f = os.path.join(current_dir, file)
 		print(f'Server response file is {f}')
 	server = UDPserver(f)
 	t2 = threading.Thread(target = server.listen)
