@@ -104,15 +104,17 @@ def rdt_send(file, endpoint, sock):
     packet = make_pkt(file, seq)
 
     while packet != 0:
-        if(udt_send(packet, endpoint, sock)):
-            if(rdt_rcv(sock, seq) == 1):
-                if(seqNum == 0): # switch sequence numbers
+        if udt_send(packet, endpoint, sock):
+            if rdt_rcv(sock, seq):
+                if seqNum == 0: # switch sequence numbers
                     seqNum = 1
                 else:
                     seqNum = 0
                 seq = bin(seqNum)[2:].encode("utf-8")
                 packet = make_pkt(file, seq)
                 time.sleep(0.005)
+            else:
+                print("Bad ACK received, resending packet")
 
 ##       rdt_rcv()
 ##Parameters:
@@ -129,19 +131,12 @@ def rdt_rcv(sock, seqNum):
     recSeq = data[4:5]
     rec_cksum  = parse_checksum(data[5:])
     
-    if(config.corrupt_option == 3):
-        rnd = random_channel()
-        if(rnd < config.percent_corrupt):
-            corruptData = corrupt_bits(ACK)
-            calc =  corruptData + recSeq
-        else:
-            calc = ACK + recSeq
-        checksum = calc_checksum(calc)
-    
-    if ACK == b'1111' and recSeq == seqNum and rec_cksum == checksum:
-        #print('OK')
-        return 1
+    if config.corrupt_option == 3 and random_channel() < config.percent_ack_corrupt:
+        print("Bit error encountered in ACK!")
+        corruptData = corrupt_bits(ACK)
+        calc =  corruptData + recSeq
     else:
-        #print('NOK')
-        return 0
-            
+        calc = ACK + recSeq
+    checksum = calc_checksum(calc)
+    
+    return ACK == b'1111' and recSeq == seqNum and rec_cksum == checksum

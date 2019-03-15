@@ -109,28 +109,23 @@ def rdt_rcv(file, endpoint, sock):
     while True:
         pkt = extract(sock)
         if pkt:
-            #print('pkt')
             #parse packet
             recSeq = pkt[0:1]
             rec_ck = parse_checksum(pkt[1:3])
             data = pkt[3:]
             
             
-            if(config.corrupt_option == 2):
-                rnd = random_channel()
-                if(rnd < config.percent_corrupt):
-                    corruptData = corrupt_bits(data)
-                    calc = recSeq + corruptData
-                else:
-                    calc = recSeq + data
+            if config.corrupt_option == 2 and random_channel() < config.percent_data_corrupt:
+                print("Bit error encountered in Data!")
+                corruptData = corrupt_bits(data)
+                calc = recSeq + corruptData
+            else:
+                calc = recSeq + data
         
             chksum = calc_checksum(calc)
             
-           
-            
             # correct sequence number
             if seq == recSeq and chksum == rec_ck:
-                #print('good')
                 deliver_data(file, data)
                 sndpkt = make_pkt(ACK, recSeq, chksum)
                 udt_send(sndpkt, endpoint, sock)
@@ -144,10 +139,11 @@ def rdt_rcv(file, endpoint, sock):
                 oncethru = 1
             else:
                 # didn't receive right pkt, either seqnum wrong or cksum
-                #print('bad')
                 if oncethru == 1:
-                    #print(sndpkt)
+                    print("Bad data received, sending prev ACK")
                     udt_send(sndpkt, endpoint, sock)
+                else:
+                    print("Bad data received in first packet")
         else:
             #print('no pkt')
             file.close()

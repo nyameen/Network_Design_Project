@@ -10,7 +10,6 @@ DEFAULT_FILEPATH = 'spongebob.bmp'
 UDP_IP = "127.0.0.1"	# Server IP
 IN_PORT = 12001	    # port
 
-
 class UDPserver:
     def __init__(self, filepath):
         
