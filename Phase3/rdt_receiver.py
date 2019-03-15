@@ -3,7 +3,7 @@ import select
 import time
 import random
 import config
-e
+
 ##      corrupt_datat()
 ##Parameters:
 ##  data        - either ACK or DATA 
@@ -116,7 +116,7 @@ def rdt_rcv(file, endpoint, sock):
             data = pkt[3:]
             
             
-            if(config.corupt option == 2):
+            if(config.corupt_option == 2):
                 rnd = random_channel()
                 if(rnd < config.percent_corrupt):
                     corruptData = corrupt_bits(data)
