@@ -1,10 +1,11 @@
 import socket
 import select
 import time
+import config 
 
 ##       extract()
 ##Parameters:
-##    sock     - the socket to send through
+##    sock     - the socket to send through\
 ##    bytesize - size to read
 ##Return:
 ##    the packet and data received
@@ -87,7 +88,7 @@ def corrupt_bits(pkt):
 ##  none
 def random_channel():
 
-    choice = random.randint(0,100)
+    choice = random.randint(0,config.percent_corrupt)
     return choice
 
 
