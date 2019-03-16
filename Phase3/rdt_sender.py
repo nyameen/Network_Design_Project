@@ -17,7 +17,7 @@ def corrupt_bits(pkt):
 ##  none
 def random_channel():
 
-    choice = random.randint(0,100)
+    choice = random.randint(0,99)
     return choice
 
 ##       extract()
@@ -114,7 +114,8 @@ def rdt_send(file, endpoint, sock):
                 packet = make_pkt(file, seq)
                 time.sleep(0.005)
             else:
-                print("Bad ACK received, resending packet")
+                if config.debug:
+                    print("Bad ACK received, resending packet")
 
 ##       rdt_rcv()
 ##Parameters:
@@ -131,8 +132,10 @@ def rdt_rcv(sock, seqNum):
     recSeq = data[4:5]
     rec_cksum  = parse_checksum(data[5:])
     
-    if config.corrupt_option == 3 and random_channel() < config.percent_ack_corrupt:
-        print("Bit error encountered in ACK!")
+    r = random_channel()
+    if config.corrupt_option == 2 and r < config.percent_ack_corrupt:
+        if config.debug:
+            print("Bit error encountered in ACK!")
         corruptData = corrupt_bits(ACK)
         calc =  corruptData + recSeq
     else:

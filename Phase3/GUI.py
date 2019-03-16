@@ -15,6 +15,7 @@ def apply_new_settings():
     new_corrupt_option = corruption_option_textentry.get()
     if new_corrupt_option:
         config.corrupt_option = int(new_corrupt_option)
+    config.debug = debug.get()
 
 def Client(cb):
     from UDPclient import UDPclient
@@ -47,7 +48,7 @@ server_photo_path = os.path.join(current_dir, server_png)
 window = Tk()
 window.title("UDP Server")
 window.configure(background = "black")
-window.geometry("550x450") 
+window.geometry("625x500") 
 
 #### add server photo 
 pil_img = Image.open(server_photo_path)
@@ -97,6 +98,10 @@ data_err_rate_textentry .grid(row = 4,column = 5, sticky = W)
 
 ack_err_rate_textentry = Entry(window, width = 20, bg="white")
 ack_err_rate_textentry .grid(row = 5,column = 5, sticky = W)  
+
+### debug checkbox
+debug = IntVar()
+Checkbutton (window, text="Debug", variable=debug).grid(row=2, column=5, sticky=W)
 
 #### run the main loop
 window.mainloop()
