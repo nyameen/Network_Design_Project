@@ -22,7 +22,7 @@ def Client(cb):
     apply_new_settings()
     f = None
     if entered_text:
-        f = os.path.join(current_dir, file)
+        f = os.path.join(current_dir, entered_text)
         print(f'Client to send file: {f}')
     client = UDPclient(f, cb)
     t1 = threading.Thread(target = client.start_send)
@@ -33,7 +33,7 @@ def Server():
     entered_text = textentry.get()
     f = None
     if entered_text:
-        f = os.path.join(current_dir, file)
+        f = os.path.join(current_dir, entered_text)
         print(f'Server response file is {f}')
     server = UDPserver(f)
     t2 = threading.Thread(target = server.listen)
