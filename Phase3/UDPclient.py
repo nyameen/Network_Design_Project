@@ -3,7 +3,8 @@ import time
 import select
 import os
 import sys
-import rdt
+import rdt_receiver
+import rdt_sender
 
 DEFAULT_FILEPATH = 'spongebob.bmp'
 UDP_IP = "127.0.0.1"    # server IP
@@ -28,7 +29,7 @@ class UDPclient:
         self.sock.sendto(filename.encode('utf-8'), self.udp_info) # send file name to server
 
         self.print('Sending file contents to server')
-        rdt.rdt_send(f, self.udp_info, self.sock)
+        rdt_sender.rdt_send(f, self.udp_info, self.sock)
         f.close()
 
 
@@ -44,10 +45,11 @@ class UDPclient:
 
         f = open(filename, "wb") # open that file for writing binary
 
-        rdt.rdt_rcv(f, filename, self.sock)
+        rdt_receiver.rdt_rcv(f, self.udp_info, self.sock)
         self.print(f'Finished writing received file {filename}')
 
     def start_send(self):
+        starttime = time.time()
         try:
             self.send_img(self.img_filepath)
         except FileNotFoundError:
@@ -57,6 +59,9 @@ class UDPclient:
         self.wait_and_receive()
         self.sock.close()    # close socket
         self.cb()
+        endtime = time.time()
+        elapsedtime = "{:.4f}".format(endtime - starttime)
+        self.print(f'Time to finish {elapsedtime}')
 
     def print(self, print_str):
         print(f'Client: {print_str}')

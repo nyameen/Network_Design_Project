@@ -1,10 +1,11 @@
 import socket
 import select
 import time
+import config 
 
 ##       extract()
 ##Parameters:
-##    sock     - the socket to send through
+##    sock     - the socket to send through\
 ##    bytesize - size to read
 ##Return:
 ##    the packet and data received
@@ -74,9 +75,21 @@ def rdt_rcv(file, fileName, sock):
             file.close()
             break
             
-        
+##      corrupt_datat()
+##Parameters:
+##  data        - either ACK or DATA 
+def corrupt_bits(pkt):
+    index = random.randint(0, len(pkt)-1)
+    pkt = pkt[:index] + bytearray(chr(random.randint(0, 95)),'utf-8') + pkt[index+1:]
+    return pkt
 
+##      random
+##Parameters:
+##  none
+def random_channel():
 
+    choice = random.randint(0,100)
+    return choice
 
 
 
