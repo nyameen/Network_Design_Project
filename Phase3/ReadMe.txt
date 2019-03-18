@@ -6,7 +6,8 @@ Blaine McMahon, Jacob Sword, Nicholas Yameen
 		UDPserver.py	- Script tp run a server (triggered from GUI)
 		rdt_receiver.py	- Holds all the RDT 2.2 Receiver functions used by client and server
 		rdt_sender.py	- Holds all the RDT 2.2 Sender functions used by client and server
-		NEED DEFAULT	- default image being sent
+		config.py	- Holds GUI configuration
+		spongebob.jpg	- default image being sent
 		sever.png	- used by the GUI
 
 For Phase 3, we used Python as our programming language. The code was ran on Python version 3.6 on Mac and Windows.

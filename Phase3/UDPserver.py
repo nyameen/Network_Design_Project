@@ -6,7 +6,7 @@ import os
 import rdt_receiver
 import rdt_sender
 
-DEFAULT_FILEPATH = 'spongebob.bmp'
+DEFAULT_FILEPATH = 'spongebob.jpg'
 UDP_IP = "127.0.0.1"	# Server IP
 IN_PORT = 12001	    # port
 
