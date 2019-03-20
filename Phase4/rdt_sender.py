@@ -3,22 +3,7 @@ import select
 import time
 import random
 import config
-
-##      corrupt_datat()
-##Parameters:
-##  data        - either ACK or DATA 
-def corrupt_bits(pkt):
-    index = random.randint(0, len(pkt)-1)
-    pkt = pkt[:index] + bytearray(chr(random.randint(0, 95)),'utf-8') + pkt[index+1:]
-    return pkt
-
-##      random
-##Parameters:
-##  none
-def random_channel():
-
-    choice = random.randint(0,99)
-    return choice
+import rdt_utils
 
 ##       extract()
 ##Parameters:
@@ -46,32 +31,6 @@ def extract(sock, bytesize=2048):
 def udt_send(packet, endpoint, sock):
     return sock.sendto(packet, endpoint)
 
-##       calc_checksum()
-##Parameters:
-##    data - data in bytes format
-##Return:
-##    checksum (int) calculated via 1's complement of wraparound 16bit sum 
-def calc_checksum(data):
-    lower_16_bits = int('0xFFFF', 16)
-
-    bin_sum = 0
-    for i in range(2, len(data) - 1, 2):
-        bin_sum += (data[i] << 8) | data[i+1]
-        if bin_sum & int('0x10000', 16):
-            bin_sum = bin_sum & lower_16_bits
-            bin_sum += 1
-
-    return bin_sum ^ lower_16_bits
-
-
-##       parse_checksum()
-##Parameters:
-##    byte_data - 16b checksum in form of 2 bytes (big endian)
-##Return:
-##    checksum integer
-def parse_checksum(byte_data):
-    return (byte_data[0] << 8) + byte_data[1]
-
 ##       make_pkt()
 ##Parameters:
 ##    file   - the file to create a packet with
@@ -84,7 +43,7 @@ def make_pkt(file, seqNum, bytesize=1024):
     if data == b'':
         return 0
     calc = seqNum + data
-    chksum = calc_checksum(calc)
+    chksum = rdt_utils.calc_checksum(calc)
 
     chksum_bytes = (chksum).to_bytes(2, byteorder='big')
     packet = seqNum + chksum_bytes + data
@@ -130,16 +89,16 @@ def rdt_rcv(sock, seqNum):
     # parse packets
     ACK    = data[0:4]
     recSeq = data[4:5]
-    rec_cksum  = parse_checksum(data[5:])
+    rec_cksum  = rdt_utils.parse_checksum(data[5:])
     
-    r = random_channel()
-    if config.corrupt_option == 2 and r < config.percent_ack_corrupt:
+    r = rdt_utils.random_channel()
+    if rdt_utils.has_ack_bit_err() and r < config.percent_ack_corrupt:
         if config.debug:
             print("Bit error encountered in ACK!")
-        corruptData = corrupt_bits(ACK)
+        corruptData = rdt_utils.corrupt_bits(ACK)
         calc =  corruptData + recSeq
     else:
         calc = ACK + recSeq
-    checksum = calc_checksum(calc)
+    checksum = rdt_utils.calc_checksum(calc)
     
     return ACK == b'1111' and recSeq == seqNum and rec_cksum == checksum

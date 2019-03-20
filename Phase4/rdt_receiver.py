@@ -3,22 +3,7 @@ import select
 import time
 import random
 import config
-
-##      corrupt_datat()
-##Parameters:
-##  data        - either ACK or DATA 
-def corrupt_bits(pkt):
-    index = random.randint(0, len(pkt)-1)
-    pkt = pkt[:index] + bytearray(chr(random.randint(0, 95)),'utf-8') + pkt[index+1:]
-    return pkt
-
-##      random
-##Parameters:
-##  none
-def random_channel():
-
-    choice = random.randint(0,99)
-    return choice
+import rdt_utils
 
 ##       extract()
 ##Parameters:
@@ -65,35 +50,10 @@ def udt_send(packet, endpoint, sock):
 ##    the packet
 def make_pkt(ACK, seqNum, cksum):
     pkt = ACK + seqNum
-    chksum = calc_checksum(pkt)
+    chksum = rdt_utils.calc_checksum(pkt)
     chksum_bytes = (chksum).to_bytes(2, byteorder='big')
     pkt += chksum_bytes
     return pkt
-
-##       calc_checksum()
-##Parameters:
-##    data - data in bytes format
-##Return:
-##    checksum (int) calculated via 1's complement of wraparound 16bit sum 
-def calc_checksum(data):
-    lower_16_bits = int('0xFFFF', 16)
-
-    bin_sum = 0
-    for i in range(2, len(data) - 1, 2):
-        bin_sum += (data[i] << 8) | data[i+1]
-        if bin_sum & int('0x10000', 16):
-            bin_sum = bin_sum & lower_16_bits
-            bin_sum += 1
-
-    return bin_sum ^ lower_16_bits
-
-##       parse_checksum()
-##Parameters:
-##    byte_data - 16b checksum in form of 2 bytes (big endian)
-##Return:
-##    checksum integer
-def parse_checksum(byte_data):
-    return (byte_data[0] << 8) + byte_data[1]
 
 ##       rdt_rcv()
 ##Parameters:
@@ -111,19 +71,19 @@ def rdt_rcv(file, endpoint, sock):
         if pkt:
             #parse packet
             recSeq = pkt[0:1]
-            rec_ck = parse_checksum(pkt[1:3])
+            rec_ck = rdt_utils.parse_checksum(pkt[1:3])
             data = pkt[3:]
             
             
-            if config.corrupt_option == 3 and random_channel() < config.percent_data_corrupt:
+            if rdt_utils.has_data_bit_err() and rdt_utils.random_channel() < config.percent_data_corrupt:
                 if config.debug:
                     print("Bit error encountered in Data!")
-                corruptData = corrupt_bits(data)
+                corruptData = rdt_utils.corrupt_bits(data)
                 calc = recSeq + corruptData
             else:
                 calc = recSeq + data
         
-            chksum = calc_checksum(calc)
+            chksum = rdt_utils.calc_checksum(calc)
             
             # correct sequence number
             if seq == recSeq and chksum == rec_ck:
