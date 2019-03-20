@@ -15,7 +15,7 @@ def apply_new_settings():
     new_corrupt_option = corruption_option_textentry.get()
     if new_corrupt_option:
         config.corrupt_option = int(new_corrupt_option)
-    config.debug = debug.get()
+    config.debug = err_msgs.get()
 
 def Client(cb):
     from UDPclient import UDPclient
@@ -25,7 +25,7 @@ def Client(cb):
     if entered_text:
         f = os.path.join(current_dir, entered_text)
         print(f'Client to send file: {f}')
-    client = UDPclient(f, cb)
+    client = UDPclient(f, cb, status_msgs.get())
     t1 = threading.Thread(target = client.start_send)
     t1.start()
 
@@ -36,7 +36,7 @@ def Server():
     if entered_text:
         f = os.path.join(current_dir, entered_text)
         print(f'Server response file is {f}')
-    server = UDPserver(f)
+    server = UDPserver(f, status_msgs.get())
     t2 = threading.Thread(target = server.listen)
     t2.start()
 
@@ -100,8 +100,10 @@ ack_err_rate_textentry = Entry(window, width = 20, bg="white")
 ack_err_rate_textentry .grid(row = 5,column = 5, sticky = W)  
 
 ### debug checkbox
-debug = IntVar()
-Checkbutton (window, text="Debug", variable=debug).grid(row=2, column=5, sticky=W)
+status_msgs = IntVar()
+err_msgs = IntVar()
+Checkbutton (window, text="Status Msgs", variable=status_msgs).grid(row=1, column=5, sticky=W)
+Checkbutton (window, text="UDP Err Msgs", variable=err_msgs).grid(row=2, column=5, sticky=W)
 
 #### run the main loop
 window.mainloop()

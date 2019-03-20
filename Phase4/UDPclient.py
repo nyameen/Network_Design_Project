@@ -13,8 +13,9 @@ UDP_PORT = 12001    # server Port
 
 class UDPclient:
 
-    def __init__(self, filepath, callback_func):
+    def __init__(self, filepath, callback_func, status_msgs):
         self.cb = callback_func
+        self.status_msgs = status_msgs
 
         self.udp_info = (UDP_IP, UDP_PORT)
         self.img_filepath = filepath or DEFAULT_FILEPATH
@@ -61,7 +62,10 @@ class UDPclient:
         self.cb()
         endtime = time.time()
         elapsedtime = "{:.4f}".format(endtime - starttime)
-        self.print(f'Time to finish {elapsedtime}')
+
+        # Don't use self.print because want to print no matter value of self.status_msgs
+        print(f'Time to finish {elapsedtime}')
 
     def print(self, print_str):
-        print(f'Client: {print_str}')
+        if self.status_msgs:
+            print(f'Client: {print_str}')

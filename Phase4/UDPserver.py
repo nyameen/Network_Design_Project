@@ -11,9 +11,9 @@ UDP_IP = "127.0.0.1"	# Server IP
 IN_PORT = 12001	    # port
 
 class UDPserver:
-    def __init__(self, filepath):
-        
+    def __init__(self, filepath, status_msgs):
         self.response_filepath = filepath or DEFAULT_FILEPATH
+        self.status_msgs = status_msgs
 
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)		# open a UDP socket
         self.sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)	# set the socket options to reuse address and port
@@ -50,4 +50,5 @@ class UDPserver:
             self.send_img(addr) # respond by sending an image
 
     def print(self, print_str):
-        print(f'Server: {print_str}') # print to the terminal
+        if self.status_msgs:
+            print(f'Server: {print_str}') # print to the terminal
