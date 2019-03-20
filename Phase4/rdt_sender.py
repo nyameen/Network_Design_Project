@@ -77,8 +77,7 @@ def rdt_send(file, endpoint, sock):
         udt_send(packet, endpoint, sock)
         timer.start(timeout_func(packet, endpoint, sock))
         while not rdt_rcv(sock, seq):
-            if not config.debug:
-                print("Bad ACK received, resending packet")
+            pass
         timer.cancel()
         if seqNum == 0: # switch sequence numbers
             seqNum = 1
