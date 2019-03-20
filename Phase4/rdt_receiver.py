@@ -1,7 +1,6 @@
 import socket
 import select
 import time
-import random
 import config
 import rdt_utils
 
@@ -75,7 +74,7 @@ def rdt_rcv(file, endpoint, sock):
             data = pkt[3:]
             
             
-            if rdt_utils.has_data_bit_err() and rdt_utils.random_channel() < config.percent_data_corrupt:
+            if rdt_utils.has_data_bit_err() and rdt_utils.random_channel() < config.percent_corrupt:
                 if config.debug:
                     print("Bit error encountered in Data!")
                 corruptData = rdt_utils.corrupt_bits(data)

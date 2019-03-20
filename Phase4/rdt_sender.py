@@ -57,24 +57,36 @@ def make_pkt(file, seqNum, bytesize=1024):
 ##      If sending to client: client addr
 ##    sock   - the socket to send through
 def rdt_send(file, endpoint, sock):
+    timer = rdt_utils.RDTTimer(config.timeout)
+
+    # Returns callback function for when timeout reached
+    def timeout_func(packet, endpoint, sock):
+        def ret_func():
+            if config.debug:
+                print("Timeout for ACK exceeded, resending packet")
+            udt_send(packet, endpoint, sock)
+            # Forget last timer and start new one
+            timer.start(timeout_func(packet, endpoint, sock))
+        return ret_func
+
     seqNum = 0
     seq = bin(seqNum)[2:].encode("utf-8")
-
     packet = make_pkt(file, seq)
 
     while packet != 0:
-        if udt_send(packet, endpoint, sock):
-            if rdt_rcv(sock, seq):
-                if seqNum == 0: # switch sequence numbers
-                    seqNum = 1
-                else:
-                    seqNum = 0
-                seq = bin(seqNum)[2:].encode("utf-8")
-                packet = make_pkt(file, seq)
-                time.sleep(0.005)
-            else:
-                if config.debug:
-                    print("Bad ACK received, resending packet")
+        udt_send(packet, endpoint, sock)
+        timer.start(timeout_func(packet, endpoint, sock))
+        while not rdt_rcv(sock, seq):
+            if not config.debug:
+                print("Bad ACK received, resending packet")
+        timer.cancel()
+        if seqNum == 0: # switch sequence numbers
+            seqNum = 1
+        else:
+            seqNum = 0
+        seq = bin(seqNum)[2:].encode("utf-8")
+        packet = make_pkt(file, seq)
+        time.sleep(0.005)
 
 ##       rdt_rcv()
 ##Parameters:
@@ -91,12 +103,15 @@ def rdt_rcv(sock, seqNum):
     recSeq = data[4:5]
     rec_cksum  = rdt_utils.parse_checksum(data[5:])
     
-    r = rdt_utils.random_channel()
-    if rdt_utils.has_ack_bit_err() and r < config.percent_ack_corrupt:
+    if rdt_utils.has_ack_bit_err() and rdt_utils.random_channel() < config.percent_corrupt:
         if config.debug:
             print("Bit error encountered in ACK!")
         corruptData = rdt_utils.corrupt_bits(ACK)
         calc =  corruptData + recSeq
+    elif rdt_utils.has_ack_packet_loss() and rdt_utils.random_channel() < config.percent_corrupt:
+        if config.debug:
+            print("ACK Packet Dropped!")
+        return 0
     else:
         calc = ACK + recSeq
     checksum = rdt_utils.calc_checksum(calc)

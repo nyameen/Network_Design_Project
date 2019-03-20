@@ -1,5 +1,6 @@
 import random
 import config
+from threading import Timer
 
 #      corrupt_bits()
 ##Parameters:
@@ -42,8 +43,25 @@ def calc_checksum(data):
 def parse_checksum(byte_data):
     return (byte_data[0] << 8) + byte_data[1]
 
+def has_ack_bit_err():
+    return config.corrupt_option == 2
+
 def has_data_bit_err():
     return config.corrupt_option == 3
 
-def has_ack_bit_err():
-    return config.corrupt_option == 2
+def has_ack_packet_loss():
+    return config.corrupt_option == 4
+
+def has_data_packet_loss():
+    return config.corrupt_option == 5
+
+class RDTTimer:
+    def __init__(self, timeout):
+        self.timeout = timeout
+
+    def start(self, func):
+        self.timer = Timer(self.timeout, func)
+        self.timer.start()
+
+    def cancel(self):
+        self.timer.cancel()

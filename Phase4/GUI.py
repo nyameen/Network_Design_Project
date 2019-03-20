@@ -6,12 +6,9 @@ import os
 import config
 
 def apply_new_settings():
-    new_ack_rate = ack_err_rate_textentry.get()
-    if new_ack_rate:
-        config.percent_ack_corrupt = int(new_ack_rate)
-    new_data_rate = data_err_rate_textentry.get()
-    if new_data_rate:
-        config.percent_data_corrupt = int(new_data_rate)
+    new_err_rate = err_rate_textentry.get()
+    if new_err_rate:
+        config.percent_corrupt = int(new_err_rate)
     new_corrupt_option = corruption_option_textentry.get()
     if new_corrupt_option:
         config.corrupt_option = int(new_corrupt_option)
@@ -82,9 +79,7 @@ Label (window, text="Specify Image to send:",bg ="black", fg ="white", font = "n
 
 Label (window, text="Corruption Option",bg ="black", fg ="white", font = "none 12 bold") .grid(row = 3, column = 4)
 
-Label (window, text="UDT data error rate:",bg ="black", fg ="white", font = "none 12 bold") .grid(row = 4, column = 4)
-
-Label (window, text="UDT ack error rate:",bg ="black", fg ="white", font = "none 12 bold") .grid(row = 5, column = 4)
+Label (window, text="UDT error rate:",bg ="black", fg ="white", font = "none 12 bold") .grid(row = 4, column = 4)
 
 #### create a text entry
 textentry = Entry(window, width = 20, bg="white")
@@ -93,11 +88,8 @@ textentry.grid(row = 0,column = 5, sticky = W)
 corruption_option_textentry = Entry(window, width = 20, bg="white")
 corruption_option_textentry .grid(row = 3,column = 5, sticky = W)  
 
-data_err_rate_textentry = Entry(window, width = 20, bg="white")
-data_err_rate_textentry .grid(row = 4,column = 5, sticky = W)  
-
-ack_err_rate_textentry = Entry(window, width = 20, bg="white")
-ack_err_rate_textentry .grid(row = 5,column = 5, sticky = W)  
+err_rate_textentry = Entry(window, width = 20, bg="white")
+err_rate_textentry .grid(row = 4,column = 5, sticky = W)  
 
 ### debug checkbox
 status_msgs = IntVar()
