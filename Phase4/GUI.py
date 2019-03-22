@@ -14,7 +14,7 @@ def apply_new_settings():
         config.corrupt_option = int(new_corrupt_option)
     config.debug = err_msgs.get()
 
-def Client(cb):
+def Client():
     from UDPclient import UDPclient
     entered_text = textentry.get()
     apply_new_settings()
@@ -22,7 +22,7 @@ def Client(cb):
     if entered_text:
         f = os.path.join(current_dir, entered_text)
         print(f'Client to send file: {f}')
-    client = UDPclient(f, cb, status_msgs.get())
+    client = UDPclient(f, status_msgs.get())
     t1 = threading.Thread(target = client.start_send)
     t1.start()
 
@@ -58,20 +58,14 @@ Label (window, textvariable=server_text, bg ="black", fg ="white", font = "none 
 client_text = StringVar()
 Label (window, textvariable=client_text, bg ="black", fg ="white", font = "none 10 bold") .grid(row = 4, column = 4)
 
-def run_server():
-	server_text.set("Server listening...")
-	Server()
-
-def client_callback():
-	client_text.set("Client finished.")
 
 def start_client():
 	client_text.set("Client working...")
 	Client(client_callback)
 
 #### buttons for server, client, exit 
-Button (window, text = "Start Client", width = 8, command = start_client) .grid(row = 4, column = 0, padx = 5, pady= 5)
-Button (window, text = "Start server", width = 8, command = run_server) .grid(row = 3, column = 0)
+Button (window, text = "Start Client", width = 8, command = Client) .grid(row = 4, column = 0, padx = 5, pady= 5)
+Button (window, text = "Start server", width = 8, command = Server) .grid(row = 3, column = 0)
 Button (window, text = "Close", width = 8, command = window.destroy) .grid(row = 5, column = 0)
 
 #### text entry for image path

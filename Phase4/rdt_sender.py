@@ -75,7 +75,8 @@ def rdt_send(file, endpoint, sock):
 
     while packet != 0:
         if rdt_utils.has_data_packet_loss() and rdt_utils.random_channel() < config.percent_corrupt:
-            pass
+            if config.debug:
+                print("DATA Packet Dropped!")
         else:
             udt_send(packet, endpoint, sock)
         timer.start(timeout_func(packet, endpoint, sock))

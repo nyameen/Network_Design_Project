@@ -13,8 +13,7 @@ UDP_PORT = 12001    # server Port
 
 class UDPclient:
 
-    def __init__(self, filepath, callback_func, status_msgs):
-        self.cb = callback_func
+    def __init__(self, filepath, status_msgs):
         self.status_msgs = status_msgs
 
         self.udp_info = (UDP_IP, UDP_PORT)
@@ -55,11 +54,9 @@ class UDPclient:
             self.send_img(self.img_filepath)
         except FileNotFoundError:
             self.print(f'{self.img_filepath} does not exist')
-            self.cb()
             return
         self.wait_and_receive()
         self.sock.close()    # close socket
-        self.cb()
         endtime = time.time()
         elapsedtime = "{:.4f}".format(endtime - starttime)
 
