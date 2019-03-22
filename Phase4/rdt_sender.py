@@ -74,7 +74,10 @@ def rdt_send(file, endpoint, sock):
     packet = make_pkt(file, seq)
 
     while packet != 0:
-        udt_send(packet, endpoint, sock)
+        if rdt_utils.has_data_packet_loss() and rdt_utils.random_channel() < config.percent_corrupt:
+            pass
+        else:
+            udt_send(packet, endpoint, sock)
         timer.start(timeout_func(packet, endpoint, sock))
         while not rdt_rcv(sock, seq):
             pass
