@@ -47,12 +47,11 @@ def udt_send(packet, endpoint, sock):
 ##    cksum   - checksum
 ##Return:
 ##    the packet
-def make_pkt(ACK, seqNum, cksum):
-    pkt = ACK + seqNum
+def make_pkt(ACK, seq_num):
+    pkt = ACK + seq_num
     chksum = rdt_utils.calc_checksum(pkt)
     chksum_bytes = (chksum).to_bytes(2, byteorder='big')
-    pkt += chksum_bytes
-    return pkt
+    return pkt + chksum_bytes
 
 ##       rdt_rcv()
 ##Parameters:
@@ -61,11 +60,11 @@ def make_pkt(ACK, seqNum, cksum):
 ##    sock     - the socket to send through            
 def rdt_rcv(f, endpoint, sock):
     expected_seq_num = 0
-    expected_seq_num_b = bin(expected_seq_num)[2:].encode("utf-8")
+    expected_seq_num_b = bin(expected_seq_num)[2:].encode("utf-8").zfill(16)
     ACK = bin(15)[2:].encode('utf-8')
 
     # TODO 
-    sndpkt = make_pkt(ACK, bin(-1, rdt_utils.calc_checksum(bin(20))))
+    sndpkt = make_pkt(ACK, bin(-1)[2:].encode('utf-8').zfill(16))
     while True:
         pkt = extract(sock)
         if pkt:
@@ -73,7 +72,6 @@ def rdt_rcv(f, endpoint, sock):
             rec_seq = pkt[0:16]
             rec_ck = rdt_utils.parse_checksum(pkt[16:18])
             data = pkt[18:]
-            print(f'received {rec_seq}')
             
             
             if rdt_utils.has_data_bit_err() and rdt_utils.random_channel() < config.percent_corrupt:
@@ -87,13 +85,13 @@ def rdt_rcv(f, endpoint, sock):
             chksum = rdt_utils.calc_checksum(calc)
             
             # correct sequence number
-            if expected_seq_numb == rec_seq and chksum == rec_ck:
+            if expected_seq_num_b == rec_seq and chksum == rec_ck:
                 deliver_data(f, data)
-                sndpkt = make_pkt(ACK, rec_seq, chksum)
+                sndpkt = make_pkt(ACK, rec_seq)
                 udt_send(sndpkt, endpoint, sock)
 
                 expected_seq_num += 1
-                expected_seq_num_b = bin(expected_seq_num)[2:].encode("utf-8")
+                expected_seq_num_b = bin(expected_seq_num)[2:].encode("utf-8").zfill(16)
                 oncethru = 1
             else:
                 # didn't receive right pkt, either seqnum wrong or cksum

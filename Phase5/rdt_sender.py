@@ -34,7 +34,6 @@ def udt_send(packet, endpoint, sock):
             if config.debug:
                 print("DATA Packet Dropped!")
             return
-    print("sending it")
     return sock.sendto(packet, endpoint)
 
 ##       make_pkt()
@@ -97,6 +96,7 @@ def rdt_send(f, endpoint, sock):
 
     # Start thread to get received packets and do callback actions
     rcv_listen_thread = threading.Thread(target=rdt_rcv_listen, args=(sock, rcv_listen_cb))
+    rcv_listen_thread.start()
 
     while True:
         time.sleep(0.005)
@@ -164,5 +164,5 @@ def rdt_rcv(sock):
     
     if rec_cksum != checksum:
         return None
-    return rec_seq
+    return int.from_bytes(rec_seq, byteorder='big')
 
