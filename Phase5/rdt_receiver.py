@@ -60,6 +60,7 @@ def make_pkt(ACK, seqNum, cksum):
 ##    endpoint - the endpoint
 ##    sock     - the socket to send through            
 def rdt_rcv(file, endpoint, sock):
+    return
     oncethru = 0
     seqNum = 0
     seq = bin(seqNum)[2:].encode("utf-8")

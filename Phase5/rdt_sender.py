@@ -14,8 +14,10 @@ import rdt_utils
 def extract(sock, bytesize=2048):
     timeout = 3
     ready = select.select([sock], [], [], timeout)
+    print('waiting')
     if ready[0]:
         data, addr = sock.recvfrom(bytesize)
+        print('no im waiting')
         return data
     else:
         return 0
@@ -29,17 +31,21 @@ def extract(sock, bytesize=2048):
 ##Return:
 ##    number of bytes sent
 def udt_send(packet, endpoint, sock):
+    if rdt_utils.has_data_packet_loss() and rdt_utils.random_channel() < config.percent_corrupt:
+            if config.debug:
+                print("DATA Packet Dropped!")
+            return
     return sock.sendto(packet, endpoint)
 
 ##       make_pkt()
 ##Parameters:
-##    file   - the file to create a packet with
+##    f   - the file to create a packet with
 ##    seqNum - the sequence number to send
 ##    cksum  - the checksum value
 ##Return:
 ##    the packet
-def make_pkt(file, seqNum, bytesize=1024):
-    data = file.read(bytesize)
+def make_pkt(f, seqNum, bytesize=1024):
+    data = f.read(bytesize)
     if data == b'':
         return 0
     calc = seqNum + data
@@ -51,44 +57,45 @@ def make_pkt(file, seqNum, bytesize=1024):
     
 ##       rdt_send()
 ##Parameters:
-##    file   - the file to be sent
+##    f   - the file to be sent
 ##    endpoint -
 ##      If sending to server: (IP, PORT_NUMBER)
 ##      If sending to client: client addr
 ##    sock   - the socket to send through
-def rdt_send(file, endpoint, sock):
+def rdt_send(f, endpoint, sock):
+    buffer = [0] * config.max_buf_size
     timer = rdt_utils.RDTTimer(config.timeout)
 
+    nxt_seq_num = base = 0
+    def resend_packets(endpoint, sock):
+        for pkt in buffer[base:nxt_seq_num]:
+            udt_send(pkt, endpoint, sock)
+
     # Returns callback function for when timeout reached
-    def timeout_func(packet, endpoint, sock):
+    def timeout_func(endpoint, sock):
         def ret_func():
             if config.debug:
-                print("Timeout for ACK exceeded, resending packet")
-            udt_send(packet, endpoint, sock)
+                print("Timeout for ACK exceeded, resending un-ACKed packets")
+            resend_packets(endpoint, sock)
             # Forget last timer and start new one
-            timer.start(timeout_func(packet, endpoint, sock))
+            timer.start(timeout_func(endpoint, sock))
         return ret_func
 
-    seqNum = 0
-    seq = bin(seqNum)[2:].encode("utf-8")
-    packet = make_pkt(file, seq)
+    # TODO len for seq
 
-    while packet != 0:
-        if rdt_utils.has_data_packet_loss() and rdt_utils.random_channel() < config.percent_corrupt:
-            if config.debug:
-                print("DATA Packet Dropped!")
-        else:
-            udt_send(packet, endpoint, sock)
-        timer.start(timeout_func(packet, endpoint, sock))
-        while not rdt_rcv(sock, seq):
-            pass
-        timer.cancel()
-        if seqNum == 0: # switch sequence numbers
-            seqNum = 1
-        else:
-            seqNum = 0
-        seq = bin(seqNum)[2:].encode("utf-8")
-        packet = make_pkt(file, seq)
+    while True:
+        nxt_seq_num_b = bin(nxt_seq_num)[2:].encode("utf-8")
+        pkt = make_pkt(f, nxt_seq_num_b)
+        if not pkt:
+            break
+        buffer[nxt_seq_num] = pkt
+        udt_send(buffer[nxt_seq_num], endpoint, sock)
+
+        if base == nxt_seq_num:
+            timer.start(timeout_func(endpoint, sock))
+        # TODO
+        rdt_rcv(sock, nxt_seq_num)
+        #timer.cancel()
         time.sleep(0.005)
 
 ##       rdt_rcv()
@@ -104,6 +111,7 @@ def rdt_rcv(sock, seqNum):
     # parse packets
     ACK    = data[0:4]
     recSeq = data[4:5]
+    print(recSeq)
     rec_cksum  = rdt_utils.parse_checksum(data[5:])
     
     if rdt_utils.has_ack_bit_err() and rdt_utils.random_channel() < config.percent_corrupt:
