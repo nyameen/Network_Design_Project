@@ -100,7 +100,7 @@ def rdt_send(f, endpoint, sock):
     stop_event = threading.Event()
     rcv_listen_thread = threading.Thread(target=rdt_rcv_listen, args=(sock, rcv_listen_cb, stop_event))
     rcv_listen_thread.start()
-
+    
     while True:
         time.sleep(0.005)
         # Wait till get acks back so base moves up 
@@ -135,11 +135,14 @@ def rdt_send(f, endpoint, sock):
 ##    cb   - callback to execute once non-corrupt pkt is received
 ##    stop_event - threading stop event to check.  Will exit when set
 def rdt_rcv_listen(sock, cb, stop_event):
-    while not stop_event.isSet():
+    while True:
         seq_num = None
-        # Do nothing if corrupt
-        while seq_num is None:
+        # Do nothing if corrupt - break from loop if set stop condition
+        while seq_num is None and not stop_event.is_set():
             seq_num = rdt_rcv(sock)
+        # Return from thread if set stop condition
+        if stop_event.is_set():
+            break
         cb(seq_num)
 
 ##       rdt_rcv()
