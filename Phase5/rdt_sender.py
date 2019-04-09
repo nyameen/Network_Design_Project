@@ -88,7 +88,6 @@ def rdt_send(f, endpoint, sock):
             Callback for successful receive 
             Increment base and either cancel or restart timer
         """
-        print("CB called!, ", acknum)
         pkt_buff.base = acknum + 1
         if pkt_buff.equal_index:
             timer.cancel()
