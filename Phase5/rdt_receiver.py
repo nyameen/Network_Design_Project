@@ -60,11 +60,15 @@ def make_pkt(ACK, seq_num):
 ##    sock     - the socket to send through            
 def rdt_rcv(f, endpoint, sock):
     expected_seq_num = 0
-    expected_seq_num_b = bin(expected_seq_num)[2:].encode("utf-8").zfill(16)
+    expected_seq_num_b = rdt_utils.seq_num_to_bin(expected_seq_num)
     ACK = bin(15)[2:].encode('utf-8')
 
-    # TODO 
-    sndpkt = make_pkt(ACK, bin(-1)[2:].encode('utf-8').zfill(16))
+    # TODO using initial_seq_num to stand in for "sndpkt=make_pkt(0, ACK, checksum)" on the receiver finite state machine
+    # they are using 0 for an initial "dead" response, as they are starting from an expected packet sequence number of 1
+    # we are starting from 0 to make indexing easier on the sending side, so had to use -1 here.  
+    # Can change this but will have to change sender buffer indexing
+    initial_seq_num = rdt_utils.seq_num_to_bin(-1)
+    sndpkt = make_pkt(ACK, initial_seq_num)
     while True:
         pkt = extract(sock)
         if pkt:
@@ -91,8 +95,7 @@ def rdt_rcv(f, endpoint, sock):
                 udt_send(sndpkt, endpoint, sock)
 
                 expected_seq_num += 1
-                expected_seq_num_b = bin(expected_seq_num)[2:].encode("utf-8").zfill(16)
-                oncethru = 1
+                expected_seq_num_b = rdt_utils.seq_num_to_bin(expected_seq_num)
             else:
                 # didn't receive right pkt, either seqnum wrong or cksum
                 if config.debug:

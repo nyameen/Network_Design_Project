@@ -44,7 +44,7 @@ def udt_send(packet, endpoint, sock):
 ##Return:
 ##    the packet
 def make_pkt(f, seq_num, bytesize=1024):
-    seq_num_b = bin(seq_num)[2:].encode("utf-8").zfill(16)
+    seq_num_b = rdt_utils.seq_num_to_bin(seq_num)
     data = f.read(bytesize)
     if data == b'':
         return 0
@@ -63,6 +63,7 @@ def make_pkt(f, seq_num, bytesize=1024):
 ##      If sending to client: client addr
 ##    sock   - the socket to send through
 def rdt_send(f, endpoint, sock):
+    # Buffer to hold packets to be sent
     pkt_buff = rdt_utils.PacketBuffer(config.max_buf_size, config.window_size)
     timer = rdt_utils.RDTTimer(config.timeout)
 
@@ -87,6 +88,7 @@ def rdt_send(f, endpoint, sock):
             Callback for successful receive 
             Increment base and either cancel or restart timer
         """
+        print("CB called!, ", acknum)
         pkt_buff.base = acknum + 1
         if pkt_buff.equal_index:
             timer.cancel()
@@ -95,7 +97,9 @@ def rdt_send(f, endpoint, sock):
             timer.start(timeout_func(endpoint, sock))
 
     # Start thread to get received packets and do callback actions
-    rcv_listen_thread = threading.Thread(target=rdt_rcv_listen, args=(sock, rcv_listen_cb))
+    # This is necessary as we can't block the main thread from sending packets while we are waiting to receive
+    stop_event = threading.Event()
+    rcv_listen_thread = threading.Thread(target=rdt_rcv_listen, args=(sock, rcv_listen_cb, stop_event))
     rcv_listen_thread.start()
 
     while True:
@@ -120,6 +124,9 @@ def rdt_send(f, endpoint, sock):
         if pkt_buff.equal_index():
             timer.start(timeout_func(endpoint, sock))
         pkt_buff.nxt_seq_num += 1
+
+    # Send thread event to terminate itself, then wait for join 
+    stop_event.set()
     rcv_listen_thread.join()
 
 
@@ -127,12 +134,14 @@ def rdt_send(f, endpoint, sock):
 ##Parameters:
 ##    sock     - the socket to send through
 ##    cb   - callback to execute once non-corrupt pkt is received
-def rdt_rcv_listen(sock, cb):
-    seq_num = None
-    # Do nothing if corrupt
-    while seq_num is None:
-        seq_num = rdt_rcv(sock)
-    cb(seq_num)
+##    stop_event - threading stop event to check.  Will exit when set
+def rdt_rcv_listen(sock, cb, stop_event):
+    while not stop_event.isSet():
+        seq_num = None
+        # Do nothing if corrupt
+        while seq_num is None:
+            seq_num = rdt_rcv(sock)
+        cb(seq_num)
 
 ##       rdt_rcv()
 ##Parameters:
@@ -164,5 +173,6 @@ def rdt_rcv(sock):
     
     if rec_cksum != checksum:
         return None
-    return int.from_bytes(rec_seq, byteorder='big')
+
+    return int(rec_seq, 2)
 

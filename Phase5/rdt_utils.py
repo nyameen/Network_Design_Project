@@ -35,6 +35,14 @@ def calc_checksum(data):
 
     return bin_sum ^ lower_16_bits
 
+def seq_num_to_bin(num):
+    ''' 
+        Translate decimal sec num to bin.  
+        Use zero-fill to ensure it is 16 bits wide 
+        16 bites used here to ensure there is enough space for all potential sequence nums
+    '''
+    return bin(num)[2:].encode('utf-8').zfill(16)
+
 ##       parse_checksum()
 ##Parameters:
 ##    byte_data - 16b checksum in form of 2 bytes (big endian)
@@ -43,6 +51,7 @@ def calc_checksum(data):
 def parse_checksum(byte_data):
     return (byte_data[0] << 8) + byte_data[1]
 
+# Corruption helper functions below 
 def has_ack_bit_err():
     return config.corrupt_option == 2
 
