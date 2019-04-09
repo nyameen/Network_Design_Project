@@ -56,58 +56,51 @@ def make_pkt(ACK, seqNum, cksum):
 
 ##       rdt_rcv()
 ##Parameters:
-##    file     - the file to be sent
+##    f- the file to be sent
 ##    endpoint - the endpoint
 ##    sock     - the socket to send through            
-def rdt_rcv(file, endpoint, sock):
-    return
-    oncethru = 0
-    seqNum = 0
-    seq = bin(seqNum)[2:].encode("utf-8")
+def rdt_rcv(f, endpoint, sock):
+    expected_seq_num = 0
+    expected_seq_num_b = bin(expected_seq_num)[2:].encode("utf-8")
     ACK = bin(15)[2:].encode('utf-8')
-    
+
+    # TODO 
+    sndpkt = make_pkt(ACK, bin(-1, rdt_utils.calc_checksum(bin(20))))
     while True:
         pkt = extract(sock)
         if pkt:
             #parse packet
-            recSeq = pkt[0:1]
-            rec_ck = rdt_utils.parse_checksum(pkt[1:3])
-            data = pkt[3:]
+            rec_seq = pkt[0:16]
+            rec_ck = rdt_utils.parse_checksum(pkt[16:18])
+            data = pkt[18:]
+            print(f'received {rec_seq}')
             
             
             if rdt_utils.has_data_bit_err() and rdt_utils.random_channel() < config.percent_corrupt:
                 if config.debug:
                     print("Bit error encountered in Data!")
                 corruptData = rdt_utils.corrupt_bits(data)
-                calc = recSeq + corruptData
+                calc = rec_seq + corruptData
             else:
-                calc = recSeq + data
+                calc = rec_seq + data
         
             chksum = rdt_utils.calc_checksum(calc)
             
             # correct sequence number
-            if seq == recSeq and chksum == rec_ck:
-                deliver_data(file, data)
-                sndpkt = make_pkt(ACK, recSeq, chksum)
+            if expected_seq_numb == rec_seq and chksum == rec_ck:
+                deliver_data(f, data)
+                sndpkt = make_pkt(ACK, rec_seq, chksum)
                 udt_send(sndpkt, endpoint, sock)
 
-                # switch sequence number
-                if seqNum == 0:
-                    seqNum = 1
-                else:
-                    seqNum = 0
-                seq = bin(seqNum)[2:].encode("utf-8")
+                expected_seq_num += 1
+                expected_seq_num_b = bin(expected_seq_num)[2:].encode("utf-8")
                 oncethru = 1
             else:
                 # didn't receive right pkt, either seqnum wrong or cksum
-                if oncethru == 1:
-                    if config.debug:
-                        print("Bad data received, sending prev ACK")
-                    udt_send(sndpkt, endpoint, sock)
-                else:
-                    if config.debug:
-                        print("Bad data received in first packet")
+                if config.debug:
+                    print("Bad data received, sending prev ACK")
+                udt_send(sndpkt, endpoint, sock)
         else:
-            file.close()
+            f.close()
             break
             

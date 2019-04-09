@@ -45,7 +45,6 @@ class UDPserver:
             self.print(f'Writing filename {fileName}')
             f = open(fileName, 'wb') # open for writing binary
             
-            return
             rdt_receiver.rdt_rcv(f, addr, self.sock)	# RDT receive
             self.print(f'Finished writing received file {fileName}')
             self.send_img(addr) # respond by sending an image
