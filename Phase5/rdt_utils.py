@@ -39,7 +39,7 @@ def seq_num_to_bin(num):
     ''' 
         Translate decimal sec num to bin.  
         Use zero-fill to ensure it is 16 bits wide 
-        16 bites used here to ensure there is enough space for all potential sequence nums
+        16 bits used here to ensure there is enough space for all potential sequence nums
     '''
     return bin(num)[2:].encode('utf-8').zfill(16)
 

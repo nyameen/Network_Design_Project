@@ -7,6 +7,7 @@ import rdt_receiver
 import rdt_sender
 
 DEFAULT_FILEPATH = 'spongebob.jpg'
+MY_FILENAME = 'client_recv.jpg'
 UDP_IP = "127.0.0.1"    # server IP
 UDP_PORT = 12001    # server Port
 
@@ -24,29 +25,14 @@ class UDPclient:
 
     def send_img(self, filepath):
         f = open(filepath, "rb")  # open that file for reading binary
-        filename = os.path.basename(filepath)
-        self.print(f"Sending filename {filename} to server")
-        self.sock.sendto(filename.encode('utf-8'), self.udp_info) # send file name to server
-
         self.print('Sending file contents to server')
         rdt_sender.rdt_send(f, self.udp_info, self.sock)
         f.close()
 
 
     def wait_and_receive(self):
-        data, addr = self.sock.recvfrom(1024)    # receive file name from server
-        if not data:
-            print('No response received')
-            return
-
-        resfile = data.strip().decode('utf-8')
-        filename = f'client_recv_{resfile}'
-        self.print(f"Response file Name: {filename}")   # print it
-
-        f = open(filename, "wb") # open that file for writing binary
-
-        rdt_receiver.rdt_rcv(f, self.udp_info, self.sock)
-        self.print(f'Finished writing received file {filename}')
+        rdt_receiver.rdt_rcv(MY_FILENAME, self.sock)
+        self.print('Finished writing received file')
 
     def start_send(self):
         starttime = time.time()

@@ -16,9 +16,9 @@ def extract(sock, bytesize=2048):
     ready = select.select([sock], [], [], timeout)
     if ready[0]:
         data, addr = sock.recvfrom(bytesize)
-        return data
+        return data, addr
     else:
-        return 0
+        return 0, 0
 
 ##       deliver_data()
 ##Parameters:
@@ -56,9 +56,10 @@ def make_pkt(ACK, seq_num):
 ##       rdt_rcv()
 ##Parameters:
 ##    f- the file to be sent
-##    endpoint - the endpoint
 ##    sock     - the socket to send through            
-def rdt_rcv(f, endpoint, sock):
+##Return:
+##   endpoint that got messages from
+def rdt_rcv(fname, sock):
     expected_seq_num = 0
     expected_seq_num_b = rdt_utils.seq_num_to_bin(expected_seq_num)
     ACK = bin(15)[2:].encode('utf-8')
@@ -69,9 +70,18 @@ def rdt_rcv(f, endpoint, sock):
     # Can change this but will have to change sender buffer indexing
     initial_seq_num = rdt_utils.seq_num_to_bin(-1)
     sndpkt = make_pkt(ACK, initial_seq_num)
+    endpoint = None # Endpoint starts off unitialized, get it from first received packet
+    f = None # Don't open file until know that we received message
     while True:
-        pkt = extract(sock)
-        if pkt:
+        pkt, addr = extract(sock)
+        # Initialize endpoint with actual addr received
+        if not endpoint and addr:
+            endpoint = addr
+        # Got actual message
+        if pkt and addr:
+            # Open file if not opened
+            if not f:
+                f = open(fname, 'wb')
             #parse packet
             rec_seq = pkt[0:16]
             rec_ck = rdt_utils.parse_checksum(pkt[16:18])
@@ -102,6 +112,9 @@ def rdt_rcv(f, endpoint, sock):
                     print("Bad data received, sending prev ACK")
                 udt_send(sndpkt, endpoint, sock)
         else:
-            f.close()
+            # Close file if opened
+            if f:
+                f.close()
             break
+    return endpoint
             
