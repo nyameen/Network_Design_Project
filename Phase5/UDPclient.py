@@ -5,11 +5,7 @@ import os
 import sys
 import rdt_receiver
 import rdt_sender
-
-DEFAULT_FILEPATH = 'spongebob.jpg'
-MY_FILENAME = 'client_recv.jpg'
-UDP_IP = "127.0.0.1"    # server IP
-UDP_PORT = 12001    # server Port
+from config import *
 
 
 class UDPclient:
