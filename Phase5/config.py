@@ -14,7 +14,7 @@ IN_PORT = 12001	    # port
 
 
 #Default Client Settings
-MY_FILENAME = 'server_recv.jpg'
 DEFAULT_FILEPATH = 'spongebob.jpg'
-UDP_IP = "127.0.0.1"	# Server IP
-IN_PORT = 12001	    # port
+MY_FILENAME = 'client_recv.jpg'
+UDP_IP = "127.0.0.1"    # server IP
+UDP_PORT = 12001    # server Port
