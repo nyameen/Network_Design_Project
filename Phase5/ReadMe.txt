@@ -44,7 +44,7 @@ Files received by the server will be entitled "server_recv_{{whatever filename w
 	D. ACK Packet Loss err: use 4 for the input Corruption Option
 	D. ACK Data Loss err: use 5 for the input Corruption Option
 
-4) This version utilizes Go-Back-N protocl to send and receive messages between host and client.
+4) This version utilizes Go-Back-N protocl to send and receive messages between host and client. This protocol allows for greater efficieny by allowing for mutiple frames being set at a time.  A single ACK can be used to to acknowledge more than one frame.  
 	- The window size is set to 10 
 	- Timeout is 10ms 
-	- Max buffer size is 
+	- Max buffer size is 65,435
