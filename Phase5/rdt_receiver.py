@@ -64,14 +64,10 @@ def rdt_rcv(fname, sock):
     expected_seq_num_b = rdt_utils.seq_num_to_bin(expected_seq_num)
     ACK = bin(15)[2:].encode('utf-8')
 
-    # TODO using initial_seq_num to stand in for "sndpkt=make_pkt(0, ACK, checksum)" on the receiver finite state machine
-    # they are using 0 for an initial "dead" response, as they are starting from an expected packet sequence number of 1
-    # we are starting from 0 to make indexing easier on the sending side, so had to use -1 here.  
-    # Can change this but will have to change sender buffer indexing
-    initial_seq_num = rdt_utils.seq_num_to_bin(-1)
-    sndpkt = make_pkt(ACK, initial_seq_num)
+    oncethru = False
     endpoint = None # Endpoint starts off unitialized, get it from first received packet
     f = None # Don't open file until know that we received message
+    sndpkt = None
     while True:
         pkt, addr = extract(sock)
         # Initialize endpoint with actual addr received
@@ -110,11 +106,13 @@ def rdt_rcv(fname, sock):
                 # didn't receive right pkt, either seqnum wrong or cksum
                 if config.debug:
                     print("Bad data received, sending prev ACK")
-                udt_send(sndpkt, endpoint, sock)
+                if oncethru and sndpkt:
+                    udt_send(sndpkt, endpoint, sock)
         else:
             # Close file if opened
             if f:
                 f.close()
             break
+        oncethru = True
     return endpoint
             

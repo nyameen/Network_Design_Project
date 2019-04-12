@@ -30,7 +30,7 @@ class UDPserver:
     def listen(self):
         self.print('Listening...')
         while True:
-            addr = rdt_receiver.rdt_rcv(MY_FILENAME, self.sock)	# RDT receive
+            addr = rdt_receiver.rdt_rcv(SERVER_RECV_FP, self.sock)	# RDT receive
             # If didn't get anything then continue
             if not addr:
                 continue

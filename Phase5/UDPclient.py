@@ -27,7 +27,7 @@ class UDPclient:
 
 
     def wait_and_receive(self):
-        rdt_receiver.rdt_rcv(MY_FILENAME, self.sock)
+        rdt_receiver.rdt_rcv(CLIENT_RECV_FP, self.sock)
         self.print('Finished writing received file')
 
     def start_send(self):
