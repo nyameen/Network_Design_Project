@@ -11,7 +11,7 @@ Blaine McMahon, Jacob Sword, Nicholas Yameen
 		spongebob.jpg	- default image being sent
 		sever.png	- used by the GUI for display
 
-For Phase 4, we used Python as our programming language. The code was run on Python version 3.6 on Mac and Windows.
+For Phase 5, we used Python as our programming language. The code was run on Python version 3.6 on Mac and Windows.
 The GUI require pillow, if not installed preform a "pip install pillow".  It also uses tkinter,
 but this should be included in all recent installations of python.
 
@@ -43,3 +43,8 @@ Files received by the server will be entitled "server_recv_{{whatever filename w
 	C. Data Bit err: use 3 for the input Corruption Option
 	D. ACK Packet Loss err: use 4 for the input Corruption Option
 	D. ACK Data Loss err: use 5 for the input Corruption Option
+
+4) This version utilizes Go-Back-N protocl to send and receive messages between host and client.
+	- The window size is set to 10 
+	- Timeout is 10ms 
+	- Max buffer size is 
