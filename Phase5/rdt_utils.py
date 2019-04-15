@@ -69,23 +69,21 @@ class RDTTimer:
     """ Timer class for usage in RDT """
     def __init__(self, timeout):
         self.timeout = timeout
-        self.running_timer = False
+        self.timer = None
 
     def start(self, func):
         """ 
             Start a timer with the given timeout function
             Cancels running timer if applicable
         """
-        if self.running_timer:
+        if self.timer:
             self.timer.cancel()
         self.timer = Timer(self.timeout, func)
         self.timer.start()
-        self.running_timer = True
 
     def cancel(self):
         """ Cancel current timer """
         self.timer.cancel()
-        self.running_timer = False
 
 
 class PacketBuffer:

@@ -77,7 +77,7 @@ def rdt_send(f, endpoint, sock):
         def ret_func():
             """ Restart timer and go back N """
             if config.debug:
-                print("Timeout for ACK exceeded, resending un-ACKed packets")
+                print(f"Timeout for ACK exceeded, resending un-ACKed packets")
             # Forget last timer and start new one
             timer.start(timeout_func(endpoint, sock))
             go_back_n(endpoint, sock)
@@ -129,6 +129,7 @@ def rdt_send(f, endpoint, sock):
         pkt_buff.nxt_seq_num += 1
 
     # Send thread event to terminate itself, then wait for join 
+    timer.cancel()
     stop_event.set()
     rcv_listen_thread.join()
 
