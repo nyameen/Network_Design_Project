@@ -5,6 +5,7 @@ debug = 0   #1: print ack/data err statements, 0: no debug print statements
 timeout = 0.050 #seconds
 window_size = 10
 max_buf_size = 65535
+loss_recovery = 1   #1: Recovery from lost data, 0: Ignore loss
 
 SERVER_RECV_FP = 'server_recv.jpg'
 CLIENT_RECV_FP = 'client_recv.jpg'

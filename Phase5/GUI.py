@@ -13,6 +13,7 @@ def apply_new_settings():
     if new_corrupt_option:
         config.corrupt_option = int(new_corrupt_option)
     config.debug = err_msgs.get()
+    config.loss_recovery = loss_recovery.get()
 
 def Client():
     from UDPclient import UDPclient
@@ -88,8 +89,11 @@ err_rate_textentry .grid(row = 4,column = 5, sticky = W)
 ### debug checkbox
 status_msgs = IntVar()
 err_msgs = IntVar()
+loss_recovery = IntVar(value=1)
+
 Checkbutton (window, text="Status Msgs", variable=status_msgs).grid(row=1, column=5, sticky=W)
 Checkbutton (window, text="UDP Err Msgs", variable=err_msgs).grid(row=2, column=5, sticky=W)
+Checkbutton (window, text="Loss Recovery", variable=loss_recovery).grid(row=1, column=4, sticky=W)
 
 #### run the main loop
 window.mainloop()

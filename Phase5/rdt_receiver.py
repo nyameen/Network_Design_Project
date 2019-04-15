@@ -95,7 +95,7 @@ def rdt_rcv(fname, sock):
             chksum = rdt_utils.calc_checksum(calc)
             
             # correct sequence number
-            if expected_seq_num_b == rec_seq and chksum == rec_ck:
+            if (not config.loss_recovery or expected_seq_num_b == rec_seq) and chksum == rec_ck:
                 deliver_data(f, data)
                 sndpkt = make_pkt(ACK, rec_seq)
                 udt_send(sndpkt, endpoint, sock)
