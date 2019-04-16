@@ -35,6 +35,14 @@ def calc_checksum(data):
 
     return bin_sum ^ lower_16_bits
 
+def seq_num_to_bin(num):
+    ''' 
+        Translate decimal sec num to bin.  
+        Use zero-fill to ensure it is 16 bits wide 
+        16 bits used here to ensure there is enough space for all potential sequence nums
+    '''
+    return bin(num)[2:].encode('utf-8').zfill(16)
+
 ##       parse_checksum()
 ##Parameters:
 ##    byte_data - 16b checksum in form of 2 bytes (big endian)
@@ -43,6 +51,7 @@ def calc_checksum(data):
 def parse_checksum(byte_data):
     return (byte_data[0] << 8) + byte_data[1]
 
+# Corruption helper functions below 
 def has_ack_bit_err():
     return config.corrupt_option == 2
 
@@ -55,13 +64,53 @@ def has_ack_packet_loss():
 def has_data_packet_loss():
     return config.corrupt_option == 5
 
+
 class RDTTimer:
+    """ Timer class for usage in RDT """
     def __init__(self, timeout):
         self.timeout = timeout
+        self.timer = None
 
     def start(self, func):
+        """ 
+            Start a timer with the given timeout function
+            Cancels running timer if applicable
+        """
+        if self.timer:
+            self.timer.cancel()
         self.timer = Timer(self.timeout, func)
         self.timer.start()
 
     def cancel(self):
+        """ Cancel current timer """
         self.timer.cancel()
+
+
+class PacketBuffer:
+    def __init__(self, buf_size, window_size):
+        self.buf = [0] * buf_size
+        self.nxt_seq_num = 0
+        self.base = 0
+        self.window_size = window_size
+        
+    def cur_window(self):
+        """ Returns list slice of packets from base to nxt_seq_num """
+        return self.buf[self.base:self.nxt_seq_num]
+
+    def add(self, pkt):
+        """ Add packet to buffer """
+        self.buf[self.nxt_seq_num] = pkt
+
+    def cur(self):
+        """ Returns packet at next seq num """
+        return self.buf[self.nxt_seq_num]
+
+    def equal_index(self):
+        """ Retuns if base has caught up to nxt_seq_num """
+        return self.base == self.nxt_seq_num
+
+    def ready(self):
+        """ Ready to send more packets """
+        return self.nxt_seq_num < self.base + self.window_size
+
+
