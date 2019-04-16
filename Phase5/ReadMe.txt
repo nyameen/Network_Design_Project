@@ -29,12 +29,16 @@ The box below this allows for entry the error rate, but will only be applied if 
 Additionally, the Status Msgs checkbox can be checked to allow for server and client to print status messages during transfer,
 and UDT Err Msgs checkbox can be checked to allow for rdt functions to output bit err/data loss and timeout error messages.
 
+Lastly, there is a "Loss Recovery" checkbox that is default to checked.  When this box is checked, measures will be taken to recover from lost data, in order to provide the expected image.
+Thus, the resulting images will always be viewable and complete.  When this checkbox is unchecked, lost packets will not be recovered, which will result in a corrupt image (either not able to be opened by 
+an image viewer, or with lost pixels).
+
 Then click the "client" button and the client will start. 
 (Each time the client button is clicked, newly input corruption option and error rate settings will be applied)
 (Note these settings apply for both client and server as they both send and receive an image)
 In the terminal, messages will appear with the name of the thread Server or Client, followed by status updates.
 When the script is finished, the client will end and the server will continue to listen, click client to run again
-or exit the GUI to finish.
+or exit the GUI to finish. After clicking close on the GUI, you may need to hit control^c in the terminal that the process was launched from as well.
 
 You should be able to see new files in the current directory denoted the successful transmission of files.
 File received by the client will be entitled "client_recv.jgp".
