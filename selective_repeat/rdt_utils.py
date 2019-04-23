@@ -70,6 +70,7 @@ class RDTTimer:
     def __init__(self, timeout):
         self.timeout = timeout
         self.timer = None
+        self.completed = False
 
     def start(self, func):
         """ 
@@ -85,13 +86,18 @@ class RDTTimer:
         """ Cancel current timer """
         self.timer.cancel()
 
+    def complete(self):
+        self.timer.cancel()
+        self.completed = True
 
-class PacketBuffer:
-    def __init__(self, buf_size, window_size):
+
+class SNDPacketBuffer:
+    def __init__(self, buf_size, window_size, timeout):
         self.buf = [0] * buf_size
         self.nxt_seq_num = 0
         self.base = 0
         self.window_size = window_size
+        self.timers = [RDTTimer(timeout) for _ in range(buf_size)]
         
     def cur_window(self):
         """ Returns list slice of packets from base to nxt_seq_num """
@@ -112,5 +118,23 @@ class PacketBuffer:
     def ready(self):
         """ Ready to send more packets """
         return self.nxt_seq_num < self.base + self.window_size
+
+    def increment_base(self):
+        """ Increment base to next unacked packet """
+        while self.timers[self.base].completed:
+            self.base += 1
+
+
+class RCVPacketBuffer:
+    def __init__(self, buf_size, window_size):
+        self.buf = [None] * buf_size
+        self.base = 0
+        self.window_size = window_size
+
+    def includes(self, pkt_num):
+        return pkt_num >= self.base and pkt_num < self.base + self.window_size
+
+
+        
 
 

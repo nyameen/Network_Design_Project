@@ -64,40 +64,25 @@ def make_pkt(f, seq_num, bytesize=1024):
 ##    sock   - the socket to send through
 def rdt_send(f, endpoint, sock):
     # Buffer to hold packets to be sent
-    pkt_buff = rdt_utils.PacketBuffer(config.max_buf_size, config.window_size)
-    timer = rdt_utils.RDTTimer(config.timeout)
-
-    def go_back_n(endpoint, sock):
-        """ Go Back N and resend packets """
-        for pkt in pkt_buff.cur_window():
-            udt_send(pkt, endpoint, sock)
-    
-    def timeout_func(endpoint, sock):
+    pkt_buff = rdt_utils.SNDPacketBuffer(config.max_buf_size, config.window_size, config.timeout)
+            
+    def timeout_func(endpoint, sock, packet_num):
         """ Returns callback func for when timeout reached """
-        def ret_func():
-            """ Restart timer and go back N """
+        def repeat():
+            """ Repeat selected packet and restart timer """
             if config.debug:
-                print(f"Timeout for ACK exceeded, resending un-ACKed packets")
-            # Forget last timer and start new one
-            timer.start(timeout_func(endpoint, sock))
-            go_back_n(endpoint, sock)
-        return ret_func
+                print(f"Timeout for {packet_num} ACK ... resending ")
+            if packet_num >= pkt_buff.base:
+                udt_send(pkt_buff.buf[packet_num], endpoint, sock)
+                pkt_buff.timers[packet_num].start(timeout_func(endpoint, sock, packet_num))
+        return repeat
     
     def rcv_listen_cb(acknum):
-        """ 
-            Callback for successful receive 
-            Increment base and either cancel or restart timer
-        """
-        nxt = acknum + 1
-        # Don't care if getting previous ack
-        if nxt < pkt_buff.base:
-            return
-        pkt_buff.base = nxt
-        if pkt_buff.equal_index():
-            timer.cancel()
-        else:
-            # Restart timer for new window
-            timer.start(timeout_func(endpoint, sock))
+        """ Callback for successful receive """
+        # Mark as received
+        pkt_buff.timers[acknum].complete()
+        if acknum == pkt_buff.base:
+            pkt_buff.increment_base()
 
     # Start thread to get received packets and do callback actions
     # This is necessary as we can't block the main thread from sending packets while we are waiting to receive
@@ -120,16 +105,14 @@ def rdt_send(f, endpoint, sock):
             # Need to keep waiting until all packets acked
             else:
                 continue
-        # Add to buffer and send
+        # Add to buffer, send and start timer
         pkt_buff.add(pkt)
+        pkt_buff.timers[pkt_buff.nxt_seq_num].start(timeout_func(endpoint, sock, 
+            pkt_buff.nxt_seq_num))
         udt_send(pkt_buff.cur(), endpoint, sock)
-        # Start timeout for group
-        if pkt_buff.equal_index():
-            timer.start(timeout_func(endpoint, sock))
         pkt_buff.nxt_seq_num += 1
 
     # Send thread event to terminate itself, then wait for join 
-    timer.cancel()
     stop_event.set()
     rcv_listen_thread.join()
 

@@ -60,11 +60,9 @@ def make_pkt(ACK, seq_num):
 ##Return:
 ##   endpoint that got messages from
 def rdt_rcv(fname, sock):
-    expected_seq_num = 0
-    expected_seq_num_b = rdt_utils.seq_num_to_bin(expected_seq_num)
+    rcv_buf = rdt_utils.RCVPacketBuffer(config.max_buf_size, config.window_size)
     ACK = bin(15)[2:].encode('utf-8')
 
-    oncethru = False
     endpoint = None # Endpoint starts off unitialized, get it from first received packet
     f = None # Don't open file until know that we received message
     sndpkt = None
@@ -82,8 +80,7 @@ def rdt_rcv(fname, sock):
             rec_seq = pkt[0:16]
             rec_ck = rdt_utils.parse_checksum(pkt[16:18])
             data = pkt[18:]
-            
-            
+
             if rdt_utils.has_data_bit_err() and rdt_utils.random_channel() < config.percent_corrupt:
                 if config.debug:
                     print("Bit error encountered in Data!")
@@ -94,25 +91,27 @@ def rdt_rcv(fname, sock):
         
             chksum = rdt_utils.calc_checksum(calc)
             
-            # correct sequence number
-            if (not config.loss_recovery or expected_seq_num_b == rec_seq) and chksum == rec_ck:
-                deliver_data(f, data)
+            rec_seq_int = int(rec_seq, 2)
+            if chksum == rec_ck:
                 sndpkt = make_pkt(ACK, rec_seq)
-                udt_send(sndpkt, endpoint, sock)
-
-                expected_seq_num += 1
-                expected_seq_num_b = rdt_utils.seq_num_to_bin(expected_seq_num)
-            else:
-                # didn't receive right pkt, either seqnum wrong or cksum
-                if config.debug:
-                    print("Bad data received, sending prev ACK")
-                if oncethru and sndpkt:
+                if rcv_buf.includes(rec_seq_int):
                     udt_send(sndpkt, endpoint, sock)
+                    rcv_buf.buf[rec_seq_int] = data
+                    # Inorder
+                    if rec_seq_int == rcv_buf.base:
+                        while rcv_buf.buf[rcv_buf.base] is not None:
+                            deliver_data(f, rcv_buf.buf[rcv_buf.base])
+                            rcv_buf.base += 1
+                elif rec_seq_int < rcv_buf.base:
+                    udt_send(sndpkt, endpoint, sock)
+            else:
+                # didn't receive right pkt, wrong cksum
+                if config.debug:
+                    print("Bad data received, doing nothing")
         else:
             # Close file if opened
             if f:
                 f.close()
             break
-        oncethru = True
     return endpoint
             
