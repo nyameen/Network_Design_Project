@@ -11,7 +11,7 @@ Blaine McMahon, Jacob Sword, Nicholas Yameen
 		spongebob.jpg	- default image being sent
 		sever.png	- used by the GUI for display
 
-For Phase 5, we used Python as our programming language. The code was run on Python version 3.6 on Mac and Windows.
+For Phase 6, we used Python as our programming language. The code was run on Python version 3.6 on Mac and Windows.
 The GUI requires pillow, if not installed preform a "pip install pillow".  It also uses tkinter,
 but this should be included in all recent installations of python.
 
@@ -51,12 +51,12 @@ File received by the server will be entitled "server_recv.jpg"
 	D. ACK Packet Loss err: use 4 for the input Corruption Option - input percent error in the field below
 	D. ACK Data Loss err: use 5 for the input Corruption Option - input percent error in the field below
 
-4) This version utilizes Go-Back-N protocl to send and receive messages between host and client. This protocol allows for greater efficieny by allowing for mutiple frames being set at a time.  
+4) This version utilizes Selective Repeat to send and receive messages between host and client. This protocol allows for greater efficieny by allowing for mutiple frames being set at a time.  
 A single ACK can be used to to acknowledge more than one frame.  
 
 Default values for this process are:
 	- The window size is set to 10 
-	- Timeout is 40ms 
+	- Timeout is 50ms 
 	- Max buffer size is 65,435 packets
 
 These, and other defaults can be seen in config.py
