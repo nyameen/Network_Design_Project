@@ -2,7 +2,7 @@ import threading
 from tkinter import *
 from PIL import Image, ImageTk
 from _thread import *
-import os 
+import os
 import config
 
 def apply_new_settings():
@@ -12,6 +12,11 @@ def apply_new_settings():
     new_corrupt_option = corruption_option_textentry.get()
     if new_corrupt_option:
         config.corrupt_option = int(new_corrupt_option)
+
+    new_window = window_size_textentry.get()
+    if new_window:
+        config.window_size = int(new_window)
+
     config.debug = err_msgs.get()
     config.loss_recovery = loss_recovery.get()
 
@@ -28,7 +33,7 @@ def Client():
     t1.start()
 
 def Server():
-    from UDPserver import UDPserver 
+    from UDPserver import UDPserver
     entered_text = textentry.get()
     f = None
     if entered_text:
@@ -38,6 +43,7 @@ def Server():
     t2 = threading.Thread(target = server.listen)
     t2.start()
 
+
 server_png = 'server.png'
 current_dir = os.getcwd()
 server_photo_path = os.path.join(current_dir, server_png)
@@ -46,9 +52,9 @@ server_photo_path = os.path.join(current_dir, server_png)
 window = Tk()
 window.title("UDP Server")
 window.configure(background = "black")
-window.geometry("625x500") 
+window.geometry("625x520")
 
-#### add server photo 
+#### add server photo
 pil_img = Image.open(server_photo_path)
 server_photo = ImageTk.PhotoImage(pil_img)
 image_1 = Label(window, image = server_photo, bg = "black").grid(row =0, column = 0,sticky = W)
@@ -64,7 +70,7 @@ def start_client():
 	client_text.set("Client working...")
 	Client(client_callback)
 
-#### buttons for server, client, exit 
+#### buttons for server, client, exit
 Button (window, text = "Start Client", width = 8, command = Client) .grid(row = 4, column = 0, padx = 5, pady= 5)
 Button (window, text = "Start server", width = 8, command = Server) .grid(row = 3, column = 0)
 Button (window, text = "Close", width = 8, command = window.destroy) .grid(row = 5, column = 0)
@@ -76,15 +82,20 @@ Label (window, text="Corruption Option",bg ="black", fg ="white", font = "none 1
 
 Label (window, text="UDT error rate:",bg ="black", fg ="white", font = "none 12 bold") .grid(row = 4, column = 4)
 
+Label (window, text="Window Size",bg ="black", fg ="white", font = "none 12 bold") .grid(row = 5, column = 4)
 #### create a text entry
 textentry = Entry(window, width = 20, bg="white")
-textentry.grid(row = 0,column = 5, sticky = W)  
+textentry.grid(row = 0,column = 5, sticky = W)
 
 corruption_option_textentry = Entry(window, width = 20, bg="white")
-corruption_option_textentry .grid(row = 3,column = 5, sticky = W)  
+corruption_option_textentry .grid(row = 3,column = 5, sticky = W)
+
 
 err_rate_textentry = Entry(window, width = 20, bg="white")
-err_rate_textentry .grid(row = 4,column = 5, sticky = W)  
+err_rate_textentry .grid(row = 4,column = 5, sticky = W)
+
+window_size_textentry = Entry(window, width = 20, bg="white")
+window_size_textentry .grid(row = 5,column = 5, sticky = W)
 
 ### debug checkbox
 status_msgs = IntVar()
@@ -97,4 +108,3 @@ Checkbutton (window, text="Loss Recovery", variable=loss_recovery).grid(row=1, c
 
 #### run the main loop
 window.mainloop()
-
