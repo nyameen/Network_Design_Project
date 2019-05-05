@@ -19,6 +19,12 @@ def apply_new_settings():
 
     config.debug = err_msgs.get()
     config.loss_recovery = loss_recovery.get()
+    
+    print(f'\nCurruption Option : {config.corrupt_option}')
+    print(f'Percent Option    : {config.percent_corrupt}')
+    print(f'Window Size       : {config.window_size}')
+    print(f'Timeout value     : {config.timeout}\n')
+    
 
 def Client():
     from UDPclient import UDPclient

@@ -109,6 +109,10 @@ def rdt_send(f, endpoint, sock):
         pkt_buff.add(pkt)
         pkt_buff.timers[pkt_buff.nxt_seq_num].start(timeout_func(endpoint, sock, 
             pkt_buff.nxt_seq_num))
+
+        if config.debug:
+            print(f'Sending Packet #{pkt_buff.nxt_seq_num}')
+            
         udt_send(pkt_buff.cur(), endpoint, sock)
         pkt_buff.nxt_seq_num += 1
 
@@ -163,6 +167,9 @@ def rdt_rcv(sock):
     
     if rec_cksum != checksum:
         return None
-
+    
+    if config.debug:
+        seq = int(rec_seq, 2)
+        print(f'Packet #{seq} ACK\'d')
     return int(rec_seq, 2)
 
