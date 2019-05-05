@@ -82,8 +82,6 @@ def rdt_rcv(fname, sock):
             data = pkt[18:]
 
             if rdt_utils.has_data_bit_err() and rdt_utils.random_channel() < config.percent_corrupt:
-                if config.debug:
-                    print("Bit error encountered in Data!")
                 corruptData = rdt_utils.corrupt_bits(data)
                 calc = rec_seq + corruptData
             else:
@@ -97,17 +95,18 @@ def rdt_rcv(fname, sock):
                 if rcv_buf.includes(rec_seq_int):
                     udt_send(sndpkt, endpoint, sock)
                     rcv_buf.buf[rec_seq_int] = data
+                    rdt_utils.debug_print(f'Data packet #{int(rec_seq, 2)} added to receive buffer')
                     # Inorder
                     if rec_seq_int == rcv_buf.base:
                         while rcv_buf.buf[rcv_buf.base] is not None:
                             deliver_data(f, rcv_buf.buf[rcv_buf.base])
+                            rdt_utils.debug_print(f'Data {rcv_buf.base} delivered to file')
                             rcv_buf.base += 1
                 elif rec_seq_int < rcv_buf.base:
                     udt_send(sndpkt, endpoint, sock)
             else:
                 # didn't receive right pkt, wrong cksum
-                if config.debug:
-                    print("Bad data received, doing nothing")
+                rdt_utils.debug_print(f'Bit error encountered in data packet #{int(rec_seq, 2)}, doing nothing')
         else:
             # Close file if opened
             if f:

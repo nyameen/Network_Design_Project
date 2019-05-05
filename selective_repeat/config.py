@@ -16,3 +16,5 @@ IN_PORT = 12001	    # port
 DEFAULT_FILEPATH = 'spongebob.jpg'
 UDP_IP = "127.0.0.1"    # server IP
 UDP_PORT = 12001    # server Port
+
+transfer_start_time = None

@@ -1,6 +1,7 @@
 import random
-import config
+import time
 from threading import Timer
+import config
 
 #      corrupt_bits()
 ##Parameters:
@@ -135,6 +136,11 @@ class RCVPacketBuffer:
         return pkt_num >= self.base and pkt_num < self.base + self.window_size
 
 
+def debug_print(print_str):
+    if config.debug:
+        cur_time = time.time() - config.transfer_start_time
+        cur_time = "{:.4f}".format(cur_time)
+        print(f'{cur_time}: {print_str}')
         
 
 

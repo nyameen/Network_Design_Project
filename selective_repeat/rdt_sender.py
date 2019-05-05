@@ -29,10 +29,9 @@ def extract(sock, bytesize=2048):
 ##    sock   - the socket to send through
 ##Return:
 ##    number of bytes sent
-def udt_send(packet, endpoint, sock):
+def udt_send(packet, endpoint, sock, packet_num):
     if rdt_utils.has_data_packet_loss() and rdt_utils.random_channel() < config.percent_corrupt:
-            if config.debug:
-                print("DATA Packet Dropped!")
+            rdt_utils.debug_print(f'DATA Packet #{packet_num} Dropped!')
             return
     return sock.sendto(packet, endpoint)
 
@@ -70,10 +69,9 @@ def rdt_send(f, endpoint, sock):
         """ Returns callback func for when timeout reached """
         def repeat():
             """ Repeat selected packet and restart timer """
-            if config.debug:
-                print(f"Timeout for {packet_num} ACK ... resending ")
+            rdt_utils.debug_print(f"Timeout for {packet_num} ACK ... resending ")
             if packet_num >= pkt_buff.base:
-                udt_send(pkt_buff.buf[packet_num], endpoint, sock)
+                udt_send(pkt_buff.buf[packet_num], endpoint, sock, packet_num)
                 pkt_buff.timers[packet_num].start(timeout_func(endpoint, sock, packet_num))
         return repeat
     
@@ -110,10 +108,9 @@ def rdt_send(f, endpoint, sock):
         pkt_buff.timers[pkt_buff.nxt_seq_num].start(timeout_func(endpoint, sock, 
             pkt_buff.nxt_seq_num))
 
-        if config.debug:
-            print(f'Sending Packet #{pkt_buff.nxt_seq_num}')
-            
-        udt_send(pkt_buff.cur(), endpoint, sock)
+        rdt_utils.debug_print(f'Sending Data packet #{pkt_buff.nxt_seq_num}')
+
+        udt_send(pkt_buff.cur(), endpoint, sock, pkt_buff.nxt_seq_num)
         pkt_buff.nxt_seq_num += 1
 
     # Send thread event to terminate itself, then wait for join 
@@ -153,23 +150,20 @@ def rdt_rcv(sock):
     
     # Handle error possibilities
     if rdt_utils.has_ack_bit_err() and rdt_utils.random_channel() < config.percent_corrupt:
-        if config.debug:
-            print("Bit error encountered in ACK!")
         corruptData = rdt_utils.corrupt_bits(ACK)
         calc =  corruptData + rec_seq
     elif rdt_utils.has_ack_packet_loss() and rdt_utils.random_channel() < config.percent_corrupt:
-        if config.debug:
-            print("ACK Packet Dropped!")
+        rdt_utils.debug_print(f"ACK Packet #{int(rec_seq, 2)} Dropped !")
         return None
     else:
         calc = ACK + rec_seq
     checksum = rdt_utils.calc_checksum(calc)
     
     if rec_cksum != checksum:
+        rdt_utils.debug_print(f"Bit error encountered in ACK #{int(rec_seq, 2)}!")
         return None
     
-    if config.debug:
-        seq = int(rec_seq, 2)
-        print(f'Packet #{seq} ACK\'d')
+    rdt_utils.debug_print(f'ACK Packet #{int(rec_seq, 2)} successfully received')
+
     return int(rec_seq, 2)
 

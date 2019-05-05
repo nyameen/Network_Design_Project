@@ -1,4 +1,5 @@
 import socket
+import config
 import select
 import time
 import sys
@@ -39,4 +40,6 @@ class UDPserver:
 
     def print(self, print_str):
         if self.status_msgs:
-            print(f'Server: {print_str}') # print to the terminal
+            difftime = time.time() - config.transfer_start_time if config.transfer_start_time else 0
+            cur_time = "{:.4f}".format(difftime)
+            print(f'{cur_time}: Server: {print_str}') # print to the terminal

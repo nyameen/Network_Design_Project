@@ -5,6 +5,7 @@ import os
 import sys
 import rdt_receiver
 import rdt_sender
+import config
 from config import *
 
 
@@ -31,7 +32,7 @@ class UDPclient:
         self.print('Finished writing received file')
 
     def start_send(self):
-        starttime = time.time()
+        config.transfer_start_time = time.time()
         try:
             self.send_img(self.img_filepath)
         except FileNotFoundError:
@@ -40,11 +41,13 @@ class UDPclient:
         self.wait_and_receive()
         self.sock.close()    # close socket
         endtime = time.time()
-        elapsedtime = "{:.4f}".format(endtime - starttime)
+        elapsedtime = "{:.4f}".format(endtime - config.transfer_start_time)
 
         # Don't use self.print because want to print no matter value of self.status_msgs
         print(f'Time to finish {elapsedtime}')
 
     def print(self, print_str):
         if self.status_msgs:
-            print(f'Client: {print_str}')
+            cur_time = "{:.4f}".format(time.time() - config.transfer_start_time)
+            print(f'{cur_time} Client: {print_str}')
+
