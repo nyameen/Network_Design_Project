@@ -18,7 +18,6 @@ def apply_new_settings():
         config.window_size = int(new_window)
 
     config.debug = err_msgs.get()
-    config.loss_recovery = loss_recovery.get()
     
     print(f'\nCurruption Option : {config.corrupt_option}')
     print(f'Percent Option    : {config.percent_corrupt}')
@@ -106,11 +105,9 @@ window_size_textentry .grid(row = 5,column = 5, sticky = W)
 ### debug checkbox
 status_msgs = IntVar()
 err_msgs = IntVar()
-loss_recovery = IntVar(value=1)
 
 Checkbutton (window, text="Status Msgs", variable=status_msgs).grid(row=1, column=5, sticky=W)
 Checkbutton (window, text="UDP Err Msgs", variable=err_msgs).grid(row=2, column=5, sticky=W)
-Checkbutton (window, text="Loss Recovery", variable=loss_recovery).grid(row=1, column=4, sticky=W)
 
 #### run the main loop
 window.mainloop()
