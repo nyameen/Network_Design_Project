@@ -25,13 +25,10 @@ Next, you can change the file for the client or leave blank for the default note
 Also, you can specify the corruption option to use (1-5, corresponding to the descriptions shown in part 3 below) or leave as default which is 1
 The box below this allows for entry the error rate, but will only be applied if the corruption option allows for it (i.e. is not 1).
 (Note: if this box is left empty, error rate is defaulted to 0%)
+Below this window is the Window Size box which allows users to select the window size that will be used by both sender and receiver in the selective repeat protocol.
 
 Additionally, the Status Msgs checkbox can be checked to allow for server and client to print status messages during transfer,
 and UDT Err Msgs checkbox can be checked to allow for rdt functions to output bit err/data loss and timeout error messages.
-
-Lastly, there is a "Loss Recovery" checkbox that is default to checked.  When this box is checked, measures will be taken to recover from lost data, in order to provide the expected image.
-Thus, the resulting images will always be viewable and complete.  When this checkbox is unchecked, lost packets will not be recovered, which will result in a corrupt image (either not able to be opened by 
-an image viewer, or with lost pixels).
 
 Then click the "client" button and the client will start. 
 (Each time the client button is clicked, newly input corruption option and error rate settings will be applied)
@@ -51,8 +48,7 @@ File received by the server will be entitled "server_recv.jpg"
 	D. ACK Packet Loss err: use 4 for the input Corruption Option - input percent error in the field below
 	D. ACK Data Loss err: use 5 for the input Corruption Option - input percent error in the field below
 
-4) This version utilizes Selective Repeat to send and receive messages between host and client. This protocol allows for greater efficieny by allowing for mutiple frames being set at a time.  
-A single ACK can be used to to acknowledge more than one frame.  
+4) This version utilizes Selective Repeat to send and receive messages between host and client. This protocol allows for greater efficieny by allowing for mutiple frames being set at a time, and a timer is created for each sent packet.  
 
 Default values for this process are:
 	- The window size is set to 10 
