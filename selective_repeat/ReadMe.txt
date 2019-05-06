@@ -11,6 +11,8 @@ Blaine McMahon, Jacob Sword, Nicholas Yameen
 		spongebob.jpg	- default image being sent
 		sever.png	- used by the GUI for display
 
+This code implements the SELECTIVE REPEAT addition of Phase 6.
+
 For Phase 6, we used Python as our programming language. The code was run on Python version 3.6 on Mac and Windows.
 The GUI requires pillow, if not installed preform a "pip install pillow".  It also uses tkinter,
 but this should be included in all recent installations of python.
